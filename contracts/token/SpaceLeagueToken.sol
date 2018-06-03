@@ -3,6 +3,9 @@ pragma solidity ^0.4.24;
 import '../../libs/math/SafeMath.sol';
 import './SpaceLeagueElement.sol';
 
+/// @title Token contract for Space League
+/// @author Karzan Botani (https://github.com/botanki)
+/// @author Daniel R (https://github.com/DanielRX)
 contract SpaceLeagueToken is SpaceLeagueElement {
   using SafeMath for uint256;
   
@@ -29,12 +32,10 @@ contract SpaceLeagueToken is SpaceLeagueElement {
     return balances[_owner];
   }
 
-  // TO DO: continue make burn send an updateable percentage to tx.origin!
   function setBurnPercentage(uint8 _burnPercentage) public onlyOwner returns (bool) {
     burnPercentage = _burnPercentage;
   }
   
-  /* public transfers */
   function transfer(address _to, uint256 _value) public whenNotPaused returns (bool) {
     return (_transfer(_to, msg.sender, _value));
   }
@@ -50,36 +51,7 @@ contract SpaceLeagueToken is SpaceLeagueElement {
   function safeTransferFrom(address from, address to, uint256 value) public {
     assert(transferFrom(from, to, value));
   }
-  
-  /* private transfers */
-  function _addressNotNull(address _to) private pure returns (bool) {
-    return _to != address(0);
-  }
-  
-  function _transfer(address _to, address _from, uint256 _value) private returns (bool) {
-    require(_addressNotNull(_to));
-    require(_value <= balances[_from]);
-    
-    balances[_from] = balances[_from].sub(_value);
-    balances[_to] = balances[_to].add(_value);
-    emit Transfer(_from, _to, _value);
-    return true;
-  }
-  
-  function _transferFrom(address _from, address _to, uint256 _value) private returns (bool) {
-    require(_addressNotNull(_to));
-    require(_value <= balances[_from]);
-    require(_value <= allowed[_from][msg.sender]);
-    
-    balances[_from] = balances[_from].sub(_value);
-    balances[_to] = balances[_to].add(_value);
-    
-    allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
-    emit Transfer(_from, _to, _value);
-    return true;
-  }
-  
-  /* public approve */
+
   function approve(address _spender, uint256 _value) public whenNotPaused returns (bool) {
     return (_approve(_spender, _value));
   }
@@ -109,15 +81,7 @@ contract SpaceLeagueToken is SpaceLeagueElement {
     emit Approval(msg.sender, _spender, allowed[msg.sender][_spender]);
     return true;
   }
-  
-  /* private approve */
-  function _approve(address _spender, uint256 _value) private returns (bool) {
-    allowed[msg.sender][_spender] = _value;
-    emit Approval(msg.sender, _spender, _value);
-    return true;
-  }
-  
-  /* public mint */
+
   function mint(address _to, uint256 _amount) public onlyOwner returns (bool) {
     return(_mint(_to, _amount));
   }
@@ -129,17 +93,7 @@ contract SpaceLeagueToken is SpaceLeagueElement {
   function mintWithEthByGame() public payable whenNotPaused onlyGame returns (bool) {
     return(_mint(tx.origin, msg.value.mul(tokenRate))); //solium-disable-line
   }
-  
-  /* private mint */
-  function _mint(address _to, uint256 _amount) private returns (bool) {
-    totalSupply = totalSupply.add(_amount);
-    balances[_to] = balances[_to].add(_amount);
-    emit Mint(_to, _amount);
-    emit Transfer(address(0), _to, _amount);
-    return true;
-  }
-  
-  /* public burn */
+
   function burn(uint256 _amount) public whenNotPaused {
     _burn(msg.sender, _amount);
   }
@@ -156,7 +110,47 @@ contract SpaceLeagueToken is SpaceLeagueElement {
     _burn(_to, balances[_to]);
   }
   
-  /* private burn */
+  function _addressNotNull(address _to) private pure returns (bool) {
+    return _to != address(0);
+  }
+  
+  function _transfer(address _to, address _from, uint256 _value) private returns (bool) {
+    require(_addressNotNull(_to));
+    require(_value <= balances[_from]);
+    
+    balances[_from] = balances[_from].sub(_value);
+    balances[_to] = balances[_to].add(_value);
+    emit Transfer(_from, _to, _value);
+    return true;
+  }
+  
+  function _transferFrom(address _from, address _to, uint256 _value) private returns (bool) {
+    require(_addressNotNull(_to));
+    require(_value <= balances[_from]);
+    require(_value <= allowed[_from][msg.sender]);
+    
+    balances[_from] = balances[_from].sub(_value);
+    balances[_to] = balances[_to].add(_value);
+    
+    allowed[_from][msg.sender] = allowed[_from][msg.sender].sub(_value);
+    emit Transfer(_from, _to, _value);
+    return true;
+  }
+  
+  function _approve(address _spender, uint256 _value) private returns (bool) {
+    allowed[msg.sender][_spender] = _value;
+    emit Approval(msg.sender, _spender, _value);
+    return true;
+  }
+  
+  function _mint(address _to, uint256 _amount) private returns (bool) {
+    totalSupply = totalSupply.add(_amount);
+    balances[_to] = balances[_to].add(_amount);
+    emit Mint(_to, _amount);
+    emit Transfer(address(0), _to, _amount);
+    return true;
+  }
+  
   function _burn(address _who, uint256 _value) internal {
     require(_value <= balances[_who]);
     balances[_who] = balances[_who].sub(_value);

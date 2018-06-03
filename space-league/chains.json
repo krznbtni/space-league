@@ -1,0 +1,43 @@
+{
+  "0x6dd3bb484c0647adddb78b3f56456a24b7bf7c2ba74443a149ce997d9a96fd59": {
+    "contracts": {
+      "0x196d542b258fc9bc076298a1f97b1796ce8a7a8325634ddc0de3c274c023789e": {
+        "name": "CharacterFactory",
+        "address": "0x94F72e677821A728cCA652F7564799117174BC96"
+      },
+      "0x06f35e1d44dc2e4ba0dbe7f073ac36bc6b42a186b8a38119c288a9cca53d0a38": {
+        "name": "ClassFactory",
+        "address": "0xd260e77b5bE2bf27477A55D6f6584EDABBdF26d2"
+      },
+      "0x93d892e3ce52fe521483340ac33acf242e4854f9c7da04d0ee1e60b3e0a3566d": {
+        "name": "SafeMath",
+        "address": "0xdB8e7B94D159662883651f1A8436B1B2d569c909"
+      },
+      "0xd641070e404993a3cb7bc916234fe4e736090359438ebb2851bd348972a2adff": {
+        "name": "SafeMath8",
+        "address": "0xa1A6620fEde78C32c29622Bbc6c393664280dcEB"
+      },
+      "0xddcd5ed63887edaa8206c75ca63bf99d7b2b9cfb874bc2c66883188b6747e1b6": {
+        "name": "Pausable",
+        "address": "0x9db5013dE3EB5Add8cF20Eaa5105f5c2594bfD5C"
+      },
+      "0x8aba61c19714e55275471d94bf22f5a3e3761c9c69a43fc4e4a9a85f5c89275f": {
+        "name": "Manageable",
+        "address": "0x3bC605B0fCC8bccE80ddC25E3e732D89955E0D28"
+      },
+      "0x4e69a487c2e99a1d8957f92cf77b3346c0d95ca71eac50c9c2aede9f56e07ec4": {
+        "name": "Ownable",
+        "address": "0x6003F25EfB2F24C6437A404b2EEBa0eB8931E253"
+      },
+      "0x3341f80ca1bd29b493f90ef90ed3f5f906eb2eccabe7742610c3a4821c9f0fd9": {
+        "name": "SpaceLeagueElement",
+        "address": "0x693596386c9E8b08ea2503116300f9dE5A406576"
+      },
+      "0x86a65a2a20d9990011ab7b9c6a1616a7428193dbd98af68a9156cf9400fd1795": {
+        "name": "SpaceLeagueToken",
+        "address": "0x643C858abfa41146E67A96D3a1Cdf6f77e2ad001"
+      }
+    },
+    "name": "development"
+  }
+}

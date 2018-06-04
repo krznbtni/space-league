@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import '../ownership/Manageable.sol';
+import './ownership/Manageable.sol';
 
 contract SpaceLeagueElement is Manageable {
 

@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
-import '../../libs/math/SafeMath.sol';
-import './SpaceLeagueElement.sol';
+import '../../../libs/math/SafeMath.sol';
+import '../../SpaceLeagueElement.sol';
 
 /// @title Token contract for Space League
 /// @author Karzan Botani (https://github.com/botanki)

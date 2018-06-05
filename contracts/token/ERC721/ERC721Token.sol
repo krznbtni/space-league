@@ -11,6 +11,18 @@ import './ERC721BasicToken.sol';
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
 contract ERC721Token is ERC721, ERC721BasicToken {
+
+  // Address of itemFactory
+  address internal itemFactory;
+
+  /**
+   * @dev Function to update itemFactory contract address
+   * @param _itemFactory address of the new itemFactory
+   */
+  function setItemFactory(address _itemFactory) public {
+    itemFactory = _itemFactory;
+  }
+
   // Token name
   string internal name_;
 
@@ -143,6 +155,19 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   }
 
   /**
+   * @dev External _mint that can be called from itemFactory
+   * @dev Reverts if the caller is not the itemFactory
+   * @param _itemFactory address of the caller
+   * @param _to address the beneficiary that will own the minted token
+   * @param _tokenId uint256 ID of the token to be minted by the msg.sender
+   */
+  function mintByGame(address _caller, address _to, uint256 _tokenId) external returns (bool) {
+    require(_caller == itemFactory);
+    _mint(_to, _tokenId);
+    return true;
+  }
+
+  /**
    * @dev Internal function to mint a new token
    * @dev Reverts if the given token ID already exists
    * @param _to address the beneficiary that will own the minted token
@@ -153,6 +178,18 @@ contract ERC721Token is ERC721, ERC721BasicToken {
 
     allTokensIndex[_tokenId] = allTokens.length;
     allTokens.push(_tokenId);
+  }
+
+  /**
+   * @dev External _burn that can be called from itemFactory
+   * @dev Reverts if the caller is not the itemFactory
+   * @param _owner owner of the token to burn
+   * @param _tokenId uint256 ID of the token being burned by the msg.sender
+   */
+  function burnByGame(address _caller, address _owner, uint256 _tokenId) external returns (bool) {
+    require(_caller == itemFactory);
+    _burn(_owner, _tokenId);
+    return true;
   }
 
   /**
@@ -181,5 +218,5 @@ contract ERC721Token is ERC721, ERC721BasicToken {
     allTokensIndex[_tokenId] = 0;
     allTokensIndex[lastToken] = tokenIndex;
   }
-
+  
 }

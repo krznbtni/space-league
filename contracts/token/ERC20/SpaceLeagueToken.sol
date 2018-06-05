@@ -4,8 +4,8 @@ import '../../../libs/math/SafeMath.sol';
 import '../../SpaceLeagueElement.sol';
 
 /// @title Token contract for Space League
-/// @author Karzan Botani (https://github.com/botanki)
 /// @author Daniel R (https://github.com/DanielRX)
+/// @author Karzan Botani (https://github.com/botanki)
 contract SpaceLeagueToken is SpaceLeagueElement {
   using SafeMath for uint256;
   

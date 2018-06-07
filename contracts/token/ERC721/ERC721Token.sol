@@ -47,10 +47,10 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   /**
    * @dev Constructor function
    */
-  constructor(string _name, string _symbol) public {
-    name_ = _name;
-    symbol_ = _symbol;
-  }
+  // constructor(string _name, string _symbol) public {
+  //   name_ = _name;
+  //   symbol_ = _symbol;
+  // }
 
   /**
    * @dev Gets the token name
@@ -157,7 +157,7 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   /**
    * @dev External _mint that can be called from itemFactory
    * @dev Reverts if the caller is not the itemFactory
-   * @param _itemFactory address of the caller
+   * @param _caller address of the caller
    * @param _to address the beneficiary that will own the minted token
    * @param _tokenId uint256 ID of the token to be minted by the msg.sender
    */

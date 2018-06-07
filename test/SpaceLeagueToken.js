@@ -24,6 +24,7 @@ describe('SpaceLeagueToken', function() {
     });
   });
 
+  /*
   describe('on initialization:', function() {
     it('should set accounts[0] as the contract owner', async (done) => {
       assert.equal(accounts[0], owner);
@@ -235,4 +236,125 @@ describe('SpaceLeagueToken', function() {
       });
     });
   });
+
+  describe('Function: approve(address _spender, uint256 _value)', function() {
+    describe('If called when contract is paused', function() {
+      it('should revert', async (done) => {
+        await SpaceLeagueToken.methods.mint(owner, 1000).send({ from: owner, gas: '100000' });
+        await SpaceLeagueToken.methods.pause().send({ from: owner, gas: '100000' });
+
+        let revert;
+        try {
+          await SpaceLeagueToken.methods.approve(personOne, 500).send({ from: owner, gas: '100000' });
+        } catch (e) {
+          revert = e;
+        }
+
+        assert.ok(revert instanceof Error);
+        done();
+      });
+    });
+
+    describe('If called when the contract is un paused', function() {
+      it('should set allowance for the spender', async (done) => {
+        await SpaceLeagueToken.methods.unpause().send({ from: owner, gas: '100000' });
+        await SpaceLeagueToken.methods.mint(owner, 1000).send({ from: owner, gas: '100000' });
+        await SpaceLeagueToken.methods.approve(personOne, 500).send({ from: owner, gas: '100000' });
+        let allowance = await SpaceLeagueToken.methods.allowance(owner, personOne).call();
+        assert.equal(allowance, 500);
+        done();
+      });
+    });
+  });
+
+  describe('Function: increaseApproval(address _spender, uint256 _addedValue)', function() {
+    describe('If the contract is paused...', function() {
+      it('Should revert', async (done) => {
+        await SpaceLeagueToken.methods.pause().send({ from: owner, gas: '100000' });
+
+        let revert;
+        try {
+          await SpaceLeagueToken.methods.increaseApproval(personOne, 500).send({ from: owner, gas: '100000' });
+        } catch (e) {
+          revert = e;
+        }
+
+        assert.ok(revert instanceof Error);
+        done();
+      });
+    });
+    
+    describe('If the contract is not paused...', function() {
+      it('Should increase the allowance', async (done) => {
+        await SpaceLeagueToken.methods.unpause().send({ from: owner, gas: '100000' });
+        let allowance = await SpaceLeagueToken.methods.allowance(owner, personOne).call();
+        assert.equal(allowance, 500);
+        await SpaceLeagueToken.methods.increaseApproval(personOne, 500).send({ from: owner, gas: '100000' });
+        allowance = await SpaceLeagueToken.methods.allowance(owner, personOne).call();
+        assert.equal(allowance, 1000);
+        done();
+      });
+    });
+  });
+
+  describe('Function: decreaseApproval(address _spender, uint256 _subtractedValue)', function() {
+    describe('If the contract is paused...', function() {
+      it('Should revert', async (done) => {
+        await SpaceLeagueToken.methods.pause().send({ from: owner, gas: '100000' });
+
+        let revert;
+        try {
+          await SpaceLeagueToken.methods.decreaseApproval(personOne, 500).send({ from: owner, gas: '100000' });
+        } catch (e) {
+          revert = e;
+        }
+
+        assert.ok(revert instanceof Error);
+        done();
+      });
+    });
+
+    describe('If the contract is not paused and the subtracted value is higher than the current allowance...', function() {
+      it('Should set the allowance to 0', async (done) => {
+        await SpaceLeagueToken.methods.unpause().send({ from: owner, gas: '100000' });
+        let allowance = await SpaceLeagueToken.methods.allowance(owner, personOne).call();
+
+        await SpaceLeagueToken.methods.decreaseApproval(personOne, (allowance + 10000000)).send({ from: owner, gas: '100000' });
+        allowance = await SpaceLeagueToken.methods.allowance(owner, personOne).call();
+        
+        assert.equal(allowance, 0);
+        done();
+      });
+    });
+
+    describe('If the contract is not paused...', function() {
+      it('Should decrease the allowance', async (done) => {
+        await SpaceLeagueToken.methods.increaseApproval(personOne, 1000).send({ from: owner, gas: '100000' });
+        let allowance = await SpaceLeagueToken.methods.allowance(owner, personOne).call();
+
+        await SpaceLeagueToken.methods.decreaseApproval(personOne, (allowance / 2)).send({ from: owner, gas: '100000' });
+        allowance = await SpaceLeagueToken.methods.allowance(owner, personOne).call();
+        
+        assert.equal(allowance, 500);
+        done();
+      });
+
+      it('Should emit the Approval event', async (done) => {
+        let allowance = await SpaceLeagueToken.methods.allowance(owner, personOne).call();
+        let logs = await SpaceLeagueToken.methods.decreaseApproval(personOne, (allowance / 2)).send({ from: owner, gas: '100000' });
+        logs = logs.events.Approval.returnValues;
+        const caller = logs.owner,
+              spender = logs.spender,
+              value = logs.value;
+        
+        assert.ok(caller, owner);
+        assert.ok(spender, personOne);
+        assert.ok(value, (allowance / 2));
+        done();
+      });
+    });
+
+  });
+  */
+ 
 });

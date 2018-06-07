@@ -44,20 +44,20 @@ contract SpaceLeagueToken is SpaceLeagueElement {
     return(_transferFrom(_from, _to, _value));
   }
   
-  function safeTransfer(address to, uint256 value) public {
-    assert(transfer(to, value));
+  function safeTransfer(address _to, uint256 _value) public {
+    assert(transfer(_to, _value));
   }
   
-  function safeTransferFrom(address from, address to, uint256 value) public {
-    assert(transferFrom(from, to, value));
+  function safeTransferFrom(address _from, address _to, uint256 _value) public {
+    assert(transferFrom(_from, _to, _value));
   }
 
   function approve(address _spender, uint256 _value) public whenNotPaused returns (bool) {
     return (_approve(_spender, _value));
   }
   
-  function safeApprove(address spender, uint256 value) public {
-    assert(approve(spender, value));
+  function safeApprove(address _spender, uint256 _value) public {
+    assert(approve(_spender, _value));
   }
   
   function allowance(address _owner, address _spender) public whenNotPaused view returns (uint256) {

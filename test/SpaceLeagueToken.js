@@ -24,7 +24,6 @@ describe('SpaceLeagueToken', function() {
     });
   });
 
-  /*
   describe('on initialization:', function() {
     it('should set accounts[0] as the contract owner', async (done) => {
       assert.equal(accounts[0], owner);
@@ -49,101 +48,108 @@ describe('SpaceLeagueToken', function() {
       done();
     });
   });
-  */
 
-  /*
   describe('Function: setBurnPercentage(uint8 _burnPercentage)', function() {
-    it('should revert when not called by the contract owner', async (done) => {
-      let revert;
-
-      try {
-        await SpaceLeagueToken.methods.setBurnPercentage(15).send({ from: personOne, gas: '100000' });
-      } catch (e) {
-        revert = e;
-      }
-
-      assert.ok(revert instanceof Error);
-      done();
+    describe('When not called by the contract owner', function() {
+      it('should revert', async (done) => {
+        let revert;
+  
+        try {
+          await SpaceLeagueToken.methods.setBurnPercentage(15).send({ from: personOne, gas: '100000' });
+        } catch (e) {
+          revert = e;
+        }
+  
+        assert.ok(revert instanceof Error);
+        done();
+      });
     });
 
-    it('should update the burnPercentage', async (done) => {
-      await SpaceLeagueToken.methods.setBurnPercentage(15).send({ from: owner, gas: '100000' });
-      let burnPercentage = await SpaceLeagueToken.methods.burnPercentage().call();
-
-      assert.equal(burnPercentage, 15);
-      done();
+    describe('When called by the contract owner', function() {
+      it('should update the burnPercentage', async (done) => {
+        await SpaceLeagueToken.methods.setBurnPercentage(15).send({ from: owner, gas: '100000' });
+        let burnPercentage = await SpaceLeagueToken.methods.burnPercentage().call();
+  
+        assert.equal(burnPercentage, 15);
+        done();
+      });
     });
   });
-  */
 
-  /*
   describe('Function: transfer(address _to, uint256 _value)', function() {
-    it('should revert when the contract is paused', async (done) => {
-      let revert;
-      await SpaceLeagueToken.methods.mint(owner, 1000).send({ from: owner, gas: '100000' });
-      await SpaceLeagueToken.methods.pause().send({ from: owner, gas: '100000' });
-
-      try {
-        await SpaceLeagueToken.methods.transfer(personOne, 500).send({ from: owner, gas: '100000' });
-      } catch (e) {
-        revert = e;
-      }
-      
-      assert.ok(revert instanceof Error);
-      done();
+    describe('When the contract is paused', function() {
+      it('should revert', async (done) => {
+        let revert;
+        await SpaceLeagueToken.methods.mint(owner, 1000).send({ from: owner, gas: '100000' });
+        await SpaceLeagueToken.methods.pause().send({ from: owner, gas: '100000' });
+  
+        try {
+          await SpaceLeagueToken.methods.transfer(personOne, 500).send({ from: owner, gas: '100000' });
+        } catch (e) {
+          revert = e;
+        }
+        
+        assert.ok(revert instanceof Error);
+        done();
+      });
     });
     
-    it('should revert when the receiving address is 0', async (done) => {
-      let revert;
-      await SpaceLeagueToken.methods.mint(owner, 1000).send({ from: owner, gas: '100000' });
-
-      try {
-        await SpaceLeagueToken.methods.transfer(0, 500).send({ from: owner, gas: '100000' });
-      } catch (e) {
-        revert = e;
-      }
-      
-      assert.ok(revert instanceof Error);
-      done();
+    describe('When the receiving address is null', function() {
+      it('should revert', async (done) => {
+        let revert;
+        await SpaceLeagueToken.methods.mint(owner, 1000).send({ from: owner, gas: '100000' });
+  
+        try {
+          await SpaceLeagueToken.methods.transfer(0, 500).send({ from: owner, gas: '100000' });
+        } catch (e) {
+          revert = e;
+        }
+        
+        assert.ok(revert instanceof Error);
+        done();
+      });
     });
 
-    it('should revert when the sender\'s balance is less than the value', async (done) => {
-      let revert;
-
-      try {
-        await SpaceLeagueToken.methods.transfer(personOne, 500).send({ from: personTwo, gas: '100000' });
-      } catch (e) {
-        revert = e;
-      }
-      
-      assert.ok(revert instanceof Error);
-      done();
+    describe('When the sender\'s balance is less than the value', function() {
+      it('should revert', async (done) => {
+        let revert;
+  
+        try {
+          await SpaceLeagueToken.methods.transfer(personOne, 500).send({ from: personTwo, gas: '100000' });
+        } catch (e) {
+          revert = e;
+        }
+        
+        assert.ok(revert instanceof Error);
+        done();
+      });
     });
     
-    it('should transfer the value from the sender to the receiver', async (done) => {
-      await SpaceLeagueToken.methods.mint(owner, 1000).send({ from: owner, gas: '100000' });
+    describe('When the sender has enough balance and the receiving address is not null', function() {
+      it('should transfer the value to the receiver', async (done) => {
+        await SpaceLeagueToken.methods.mint(owner, 1000).send({ from: owner, gas: '100000' });
+  
+        try {
+          await SpaceLeagueToken.methods.transfer(personOne, 500).send({ from: owner, gas: '100000' });
+        } catch (e) {
+          console.log(e);
+        }
+        done();
+      });
 
-      try {
-        await SpaceLeagueToken.methods.transfer(personOne, 500).send({ from: owner, gas: '100000' });
-      } catch (e) {
-        console.log(e);
-      }
-      done();
+      it('should emit an event', async () => {
+        await SpaceLeagueToken.methods.mint(owner, 1000).send({ from: owner, gas: '100000' });
+        let logs = await SpaceLeagueToken.methods.transfer(personOne, 500).send({ from: owner, gas: '100000' });
+        let from = logs.events.Transfer.returnValues.from,
+            to = logs.events.Transfer.returnValues.to,
+            value = logs.events.Transfer.returnValues.value;
+  
+        assert.equal(from, owner);
+        assert.equal(to, personOne);
+        assert.equal(value, 500);
+      });
     });
-
-    it('should emit an event', async () => {
-      await SpaceLeagueToken.methods.mint(owner, 1000).send({ from: owner, gas: '100000' });
-      let logs = await SpaceLeagueToken.methods.transfer(personOne, 500).send({ from: owner, gas: '100000' });
-      let from = logs.events.Transfer.returnValues.from,
-          to = logs.events.Transfer.returnValues.to,
-          value = logs.events.Transfer.returnValues.value;
-
-      assert.equal(from, owner);
-      assert.equal(to, personOne);
-      assert.equal(value, 500);
-    // });
   });
-  */
 
   describe('Function: transferFrom(address _from, address _to, uint256 _value)', function() {
     describe('when the contract is paused', function() {

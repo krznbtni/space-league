@@ -115,8 +115,8 @@ contract SpaceLeagueToken is SpaceLeagueElement {
   }
   
   function _transfer(address _to, address _from, uint256 _value) private returns (bool) {
-    require(_addressNotNull(_to));
-    require(_value <= balances[_from]);
+    require(_addressNotNull(_to), 'REVERT: address is null');
+    require(_value <= balances[_from], 'REVERT: sender\'s balance is too low.');
     
     balances[_from] = balances[_from].sub(_value);
     balances[_to] = balances[_to].add(_value);
@@ -125,9 +125,9 @@ contract SpaceLeagueToken is SpaceLeagueElement {
   }
   
   function _transferFrom(address _from, address _to, uint256 _value) private returns (bool) {
-    require(_addressNotNull(_to));
-    require(_value <= balances[_from]);
-    require(_value <= allowed[_from][msg.sender]);
+    require(_addressNotNull(_to), 'REVERT: address is null');
+    require(_value <= balances[_from], 'REVERT: sender\'s balance is too low.');
+    require(_value <= allowed[_from][msg.sender], 'REVERT: not allowed.');
     
     balances[_from] = balances[_from].sub(_value);
     balances[_to] = balances[_to].add(_value);
@@ -152,7 +152,7 @@ contract SpaceLeagueToken is SpaceLeagueElement {
   }
   
   function _burn(address _who, uint256 _value) internal {
-    require(_value <= balances[_who]);
+    require(_value <= balances[_who], 'REVERT: function caller has too low balance to burn.');
     balances[_who] = balances[_who].sub(_value);
     address(tx.origin).transfer((_value * burnPercentage).div(100)); //solium-disable-line
     totalSupply = totalSupply.sub(_value);

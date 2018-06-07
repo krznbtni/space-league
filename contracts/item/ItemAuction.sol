@@ -19,7 +19,10 @@ contract ItemAuction is ItemFactory {
   /// @param _tokenId id of the token to be auctioned
   /// @param _price price of which the item is to be sold for
   function createAuction(uint256 _tokenId, uint128 _price) public {
-    require(msg.sender == erc721.ownerOf(_tokenId));
+    require(
+      msg.sender == erc721.ownerOf(_tokenId),
+      'REVERT: createAuction - function caller is not the token owner.'
+    );
     erc721.transferFrom(msg.sender, ERC721_TOKEN_ADDRESS, _tokenId);
     Auction memory _auction = Auction({
       seller: msg.sender,
@@ -35,7 +38,10 @@ contract ItemAuction is ItemFactory {
   /// @param _tokenId id of the ERC721 token that is to be bid on.
   function bid(uint256 _tokenId) public {
     Auction memory _auction = tokenIdToAuction[_tokenId];
-    require(spaceLeagueToken.balanceOf(msg.sender) >= _auction.price);
+    require(
+      spaceLeagueToken.balanceOf(msg.sender) >= _auction.price,
+      'REVERT: bid - function caller has as too low balance'
+    );
 
     delete tokenIdToAuction[_tokenId];
     spaceLeagueToken.transferFrom(msg.sender, _auction.seller, _auction.price);
@@ -47,7 +53,10 @@ contract ItemAuction is ItemFactory {
   /// @param _tokenId id of the ERC721 token
   function cancel(uint256 _tokenId) public {
     Auction memory _auction = tokenIdToAuction[_tokenId];
-    require(_auction.seller == msg.sender);
+    require(
+      _auction.seller == msg.sender,
+      'REVERT: cancel - function caller is not the auction creator.'
+    );
 
     delete tokenIdToAuction[_tokenId];
 

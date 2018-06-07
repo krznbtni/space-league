@@ -35,7 +35,7 @@ contract ERC721BasicToken is ERC721Basic {
    * @param _tokenId uint256 ID of the token to validate its ownership belongs to msg.sender
    */
   modifier onlyOwnerOf(uint256 _tokenId) {
-    require(ownerOf(_tokenId) == msg.sender);
+    require(ownerOf(_tokenId) == msg.sender, 'REVERT: function caller is not the token owner.');
     _;
   }
 
@@ -44,7 +44,7 @@ contract ERC721BasicToken is ERC721Basic {
    * @param _tokenId uint256 ID of the token to validate
    */
   modifier canTransfer(uint256 _tokenId) {
-    require(isApprovedOrOwner(msg.sender, _tokenId));
+    require(isApprovedOrOwner(msg.sender, _tokenId), 'REVERT: function caller is not approved to send, or the owner.');
     _;
   }
 
@@ -54,7 +54,7 @@ contract ERC721BasicToken is ERC721Basic {
    * @return uint256 representing the amount owned by the passed address
    */
   function balanceOf(address _owner) public view returns (uint256) {
-    require(_owner != address(0));
+    require(_owner != address(0), 'REVERT: address is null');
     return ownedTokensCount[_owner];
   }
 
@@ -65,7 +65,7 @@ contract ERC721BasicToken is ERC721Basic {
    */
   function ownerOf(uint256 _tokenId) public view returns (address) {
     address owner = tokenOwner[_tokenId];
-    require(owner != address(0));
+    require(owner != address(0), 'REVERT: address is null');
     return owner;
   }
 
@@ -89,7 +89,7 @@ contract ERC721BasicToken is ERC721Basic {
    */
   function approve(address _to, uint256 _tokenId) public {
     address owner = ownerOf(_tokenId);
-    require(_to != owner);
+    require(_to != owner, 'REVERT: function caller is approving themself.');
     require(msg.sender == owner || isApprovedForAll(owner, msg.sender));
 
     if (getApproved(_tokenId) != address(0) || _to != address(0)) {
@@ -114,7 +114,7 @@ contract ERC721BasicToken is ERC721Basic {
    * @param _approved representing the status of the approval to be set
    */
   function setApprovalForAll(address _to, bool _approved) public {
-    require(_to != msg.sender);
+    require(_to != msg.sender, 'REVERT: function caller is approving themself.');
     operatorApprovals[msg.sender][_to] = _approved;
     emit ApprovalForAll(msg.sender, _to, _approved);
   }
@@ -138,8 +138,8 @@ contract ERC721BasicToken is ERC721Basic {
    * @param _tokenId uint256 ID of the token to be transferred
   */
   function transferFrom(address _from, address _to, uint256 _tokenId ) public canTransfer(_tokenId) {
-    require(_from != address(0));
-    require(_to != address(0));
+    require(_from != address(0), 'REVERT: address is null');
+    require(_to != address(0), 'REVERT: address is null');
 
     clearApproval(_from, _tokenId);
     removeTokenFrom(_from, _tokenId);
@@ -208,7 +208,7 @@ contract ERC721BasicToken is ERC721Basic {
    * @param _tokenId uint256 ID of the token to be minted by the msg.sender
    */
   function _mint(address _to, uint256 _tokenId) internal {
-    require(_to != address(0));
+    require(_to != address(0), 'REVERT: address is null');
     addTokenTo(_to, _tokenId);
     emit Transfer(address(0), _to, _tokenId);
   }
@@ -231,7 +231,7 @@ contract ERC721BasicToken is ERC721Basic {
    * @param _tokenId uint256 ID of the token to be transferred
    */
   function clearApproval(address _owner, uint256 _tokenId) internal {
-    require(ownerOf(_tokenId) == _owner);
+    require(ownerOf(_tokenId) == _owner, 'REVERT: address is not the token owner.');
     if (tokenApprovals[_tokenId] != address(0)) {
       tokenApprovals[_tokenId] = address(0);
       emit Approval(_owner, address(0), _tokenId);
@@ -244,7 +244,7 @@ contract ERC721BasicToken is ERC721Basic {
    * @param _tokenId uint256 ID of the token to be added to the tokens list of the given address
    */
   function addTokenTo(address _to, uint256 _tokenId) internal {
-    require(tokenOwner[_tokenId] == address(0));
+    require(tokenOwner[_tokenId] == address(0), 'REVERT: tokenOwner address is not null.');
     tokenOwner[_tokenId] = _to;
     ownedTokensCount[_to] = ownedTokensCount[_to].add(1);
   }
@@ -255,7 +255,7 @@ contract ERC721BasicToken is ERC721Basic {
    * @param _tokenId uint256 ID of the token to be removed from the tokens list of the given address
    */
   function removeTokenFrom(address _from, uint256 _tokenId) internal {
-    require(ownerOf(_tokenId) == _from);
+    require(ownerOf(_tokenId) == _from, 'REVERT: address is not token owner.');
     ownedTokensCount[_from] = ownedTokensCount[_from].sub(1);
     tokenOwner[_tokenId] = address(0);
   }

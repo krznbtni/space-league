@@ -74,7 +74,7 @@ contract ERC721Token is ERC721, ERC721BasicToken {
    * @param _tokenId uint256 ID of the token to query
    */
   function tokenURI(uint256 _tokenId) public view returns (string) {
-    require(exists(_tokenId));
+    require(exists(_tokenId), 'REVERT: token id does not exist.');
     return tokenURIs[_tokenId];
   }
 
@@ -85,7 +85,7 @@ contract ERC721Token is ERC721, ERC721BasicToken {
    * @return uint256 token ID at the given index of the tokens list owned by the requested address
    */
   function tokenOfOwnerByIndex(address _owner,uint256 _index) public view returns (uint256) {
-    require(_index < balanceOf(_owner));
+    require(_index < balanceOf(_owner), 'REVERT: balance of Owner is not greater than index.');
     return ownedTokens[_owner][_index];
   }
 
@@ -104,7 +104,7 @@ contract ERC721Token is ERC721, ERC721BasicToken {
    * @return uint256 token ID at the given index of the tokens list
    */
   function tokenByIndex(uint256 _index) public view returns (uint256) {
-    require(_index < totalSupply());
+    require(_index < totalSupply(), 'REVERT: totalSupply is not greater than index.');
     return allTokens[_index];
   }
 
@@ -115,7 +115,7 @@ contract ERC721Token is ERC721, ERC721BasicToken {
    * @param _uri string URI to assign
    */
   function _setTokenURI(uint256 _tokenId, string _uri) internal {
-    require(exists(_tokenId));
+    require(exists(_tokenId), 'REVERT: token id does not exist.');
     tokenURIs[_tokenId] = _uri;
   }
 
@@ -162,7 +162,7 @@ contract ERC721Token is ERC721, ERC721BasicToken {
    * @param _tokenId uint256 ID of the token to be minted by the msg.sender
    */
   function mintByGame(address _caller, address _to, uint256 _tokenId) external returns (bool) {
-    require(_caller == itemFactory);
+    require(_caller == itemFactory, 'REVERT: function caller is not the item factory.');
     _mint(_to, _tokenId);
     return true;
   }
@@ -187,7 +187,7 @@ contract ERC721Token is ERC721, ERC721BasicToken {
    * @param _tokenId uint256 ID of the token being burned by the msg.sender
    */
   function burnByGame(address _caller, address _owner, uint256 _tokenId) external returns (bool) {
-    require(_caller == itemFactory);
+    require(_caller == itemFactory, 'REVERT: function caller is not the item factory.');
     _burn(_owner, _tokenId);
     return true;
   }

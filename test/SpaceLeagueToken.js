@@ -24,7 +24,6 @@ describe('SpaceLeagueToken', function() {
     });
   });
 
-  /*
   describe('on initialization:', function() {
     it('should set accounts[0] as the contract owner', async (done) => {
       assert.equal(accounts[0], owner);
@@ -128,13 +127,24 @@ describe('SpaceLeagueToken', function() {
     
     describe('When the sender has enough balance and the receiving address is not null', function() {
       it('should transfer the value to the receiver', async (done) => {
-        await SpaceLeagueToken.methods.mint(owner, 1000).send({ from: owner, gas: '100000' });
-  
-        try {
-          await SpaceLeagueToken.methods.transfer(personOne, 500).send({ from: owner, gas: '100000' });
-        } catch (e) {
-          console.log(e);
-        }
+        await SpaceLeagueToken.methods.unpause().send({ from: owner, gas: '100000' });
+
+        let personOneBalance = await SpaceLeagueToken.methods.balanceOf(personOne).call();
+        assert.equal(personOneBalance, 0);
+
+        await SpaceLeagueToken.methods.mint(personTwo, 1000).send({ from: owner, gas: '100000' });
+
+        let personTwoBalance = await SpaceLeagueToken.methods.balanceOf(personTwo).call();
+        assert.equal(personTwoBalance, 1000);
+
+        await SpaceLeagueToken.methods.transfer(personOne, 1000).send({ from: personTwo, gas: '100000' });
+
+        personOneBalance = await SpaceLeagueToken.methods.balanceOf(personOne).call();
+        assert.equal(personOneBalance, 1000);
+
+        personTwoBalance = await SpaceLeagueToken.methods.balanceOf(personTwo).call();
+        assert.equal(personTwoBalance, 0);
+
         done();
       });
 
@@ -223,15 +233,20 @@ describe('SpaceLeagueToken', function() {
 
     describe('when the sender has been allowed', function() {
       it('should send the allowed value to the receiver', async (done) => {
-        await SpaceLeagueToken.methods.mint(owner, 1000).send({ from: owner, gas: '100000' });
-        await SpaceLeagueToken.methods.approve(personOne, 500).send({ from: owner, gas: '100000' });
-        await SpaceLeagueToken.methods.transferFrom(owner, personTwo, 500).send({ from: personOne, gas: '100000' });
-  
+        await SpaceLeagueToken.methods.unpause().send({ from: owner, gas: '100000' });
+
+        // returns 6500
         let ownerBalance = await SpaceLeagueToken.methods.balanceOf(owner).call();
-        let receiverBalance = await SpaceLeagueToken.methods.balanceOf(personTwo).call();
+        assert.equal(Number(ownerBalance), 6500);
+
+        await SpaceLeagueToken.methods.approve(personOne, 6500).send({ from: owner, gas: '100000' });
+        await SpaceLeagueToken.methods.transferFrom(owner, personTwo, 6500).send({ from: personOne, gas: '100000' });
   
-        assert.equal(ownerBalance, 2500);
-        assert.equal(receiverBalance, 500);
+        ownerBalance = await SpaceLeagueToken.methods.balanceOf(owner).call();
+        let personTwoBalance = await SpaceLeagueToken.methods.balanceOf(personTwo).call();
+
+        assert.equal(Number(ownerBalance), 0);
+        assert.equal(Number(personTwoBalance), 6500);
         done();
       });
     });
@@ -355,6 +370,403 @@ describe('SpaceLeagueToken', function() {
     });
 
   });
-  */
- 
+
+  describe('Function: mint(address _to, uint256 _amount)', function() {
+    describe('When not called by the contract owner...', function() {
+      it('Should revert', async (done) => {
+        let revert;
+
+        try {
+          await SpaceLeagueToken.methods.mint(personTwo, 1000).send({ from: personOne, gas: '100000' });
+        } catch (e) {
+          revert = e;
+        }
+
+        assert.ok(revert instanceof Error);
+        done();
+      });
+    });
+
+    describe('If called by the owner...', function() {
+      it('Should mint new tokens, add them to the total supply, and send the minted tokens to the assigned address', async (done) => {
+        // Returns 10 000 because of earlier minted tokens
+        let totalSupply = await SpaceLeagueToken.methods.totalSupply().call();
+        assert.equal(Number(totalSupply), 10000);
+
+        // returns 2 000
+        let ownerBalance = await SpaceLeagueToken.methods.balanceOf(owner).call();
+        assert.equal(Number(ownerBalance), 2000)
+
+        await SpaceLeagueToken.methods.mint(owner, 500).send({ from: owner, gas: '100000' });
+
+        totalSupply = await SpaceLeagueToken.methods.totalSupply().call();
+        assert.equal(Number(totalSupply), 10500);
+
+        ownerBalance = await SpaceLeagueToken.methods.balanceOf(owner).call();
+        assert.equal(Number(ownerBalance), 2500);
+
+        done();
+      });
+
+      it('Should emit event: Mint', async (done) => {
+        let logs = await SpaceLeagueToken.methods.mint(personOne, 500).send({ from: owner, gas: '100000' });
+        const to = logs.events.Mint.returnValues.to;
+        const amount = logs.events.Mint.returnValues.amount;
+        assert.equal(to, personOne);
+        assert.equal(amount, 500);
+        done();
+      });
+
+      it('Should emit event: Transfer', async (done) => {
+        let logs = await SpaceLeagueToken.methods.mint(personOne, 500).send({ from: owner, gas: '100000' });
+        const caller = logs.events.Transfer.returnValues.from;
+        const to = logs.events.Transfer.returnValues.to;
+        const value = logs.events.Transfer.returnValues.value;
+
+        assert.equal(caller, '0x0000000000000000000000000000000000000000');
+        assert.equal(to, personOne);
+        assert.equal(value, 500);
+        done();
+      });
+    });
+  });
+
+  describe('Function: mintWithEth() payable', function() {
+    describe('If called when the contract is paused...', function() {
+      it('Should revert', async (done) => {
+        await SpaceLeagueToken.methods.pause().send({ from: owner, gas: '100000' });
+        let revert;
+
+        try {
+          await SpaceLeagueToken.methods.mintWithEth().send({ from: personOne, value: '50000', gas: '100000' });
+        } catch (e) {
+          revert = e;
+        }
+        
+        assert.ok(revert instanceof Error);
+        done();
+      });
+    });
+
+    describe('If called when the contract is not paused...', function() {
+      it('Should be payable', async (done) => {
+        await SpaceLeagueToken.methods.unpause().send({ from: owner, gas: '100000' });
+        await SpaceLeagueToken.methods.mintWithEth().send({ from: personOne, value: '50000', gas: '100000' });
+        done();
+      });
+
+      it('Should mint the correct amount of tokens (msg.value * tokenRate)', async (done) => {
+        const tokenRate = 10;
+
+        // Returns 511 500
+        let currentSupply = await SpaceLeagueToken.methods.totalSupply().call();
+
+        // Returns 6500 from earlier
+        let personTwoBalance = await SpaceLeagueToken.methods.balanceOf(personTwo).call();
+        assert.equal(Number(personTwoBalance), 6500);
+
+        await SpaceLeagueToken.methods.mintWithEth().send({ from: personTwo, value: '100', gas: '100000' });
+        
+        personTwoBalance = await SpaceLeagueToken.methods.balanceOf(personTwo).call();
+        assert.equal(Number(personTwoBalance), ((tokenRate * 100) + 6500));
+
+        let finalSupply = await SpaceLeagueToken.methods.totalSupply().call();
+
+        assert.equal(Number(finalSupply), (Number(currentSupply) + (tokenRate * 100)));
+        done();
+      });
+    });
+  });
+
+  describe('Function: mintWithEthByGame()', function() {
+    describe('If called when the contract is paused...', function() {
+      it('Should revert', async (done) => {
+        await SpaceLeagueToken.methods.setGame(accounts[9]).send({ from: owner, gas: '100000' });
+        let gameAddress = await SpaceLeagueToken.methods.gameAddress().call();
+
+        await SpaceLeagueToken.methods.pause().send({ from: owner, gas: '100000' });
+        let revert;
+
+        try {
+          await SpaceLeagueToken.methods.mintWithEthByGame().send({ from: gameAddress, value: '50000', gas: '100000' });
+        } catch (e) {
+          revert = e;
+        }
+        
+        assert.ok(revert instanceof Error);
+        done();
+      });
+    });
+
+    describe('If called by any other than the gameAddress', function() {
+      it('Should revert', async (done) => {
+        await SpaceLeagueToken.methods.unpause().send({ from: owner, gas: '100000' });
+        await SpaceLeagueToken.methods.setGame(accounts[9]).send({ from: owner, gas: '100000' });
+
+        let gameAddress = await SpaceLeagueToken.methods.gameAddress().call();
+        let revert;
+
+        try {
+          await SpaceLeagueToken.methods.mintWithEthByGame().send({ from: personOne, value: '50000', gas: '100000' });
+        } catch (e) {
+          revert = e;
+        }
+        
+        assert.ok(revert instanceof Error);
+        done();
+      });
+    });
+
+    describe('If called by the game address when the contract is not paused...', function() {
+      it('Should be payable', async (done) => {
+        let tokenRate = 10;
+
+        // Returns 512 500 from earlier. 
+        let totalSupply = await SpaceLeagueToken.methods.totalSupply().call();
+        assert.equal(Number(totalSupply), 512500);
+
+        let gameAddress = await SpaceLeagueToken.methods.gameAddress().call();
+
+        let gameAddressBalance = await SpaceLeagueToken.methods.balanceOf(gameAddress).call();
+        assert.equal(Number(gameAddressBalance), 0);
+
+        await SpaceLeagueToken.methods.mintWithEthByGame().send({ from: gameAddress, value: '50000', gas: '100000' });
+        
+        totalSupply = await SpaceLeagueToken.methods.totalSupply().call();
+        assert.equal(Number(totalSupply), (512500 + (50000 * 10)));
+
+        gameAddressBalance = await SpaceLeagueToken.methods.balanceOf(gameAddress).call();
+        assert.equal(Number(gameAddressBalance), (50000 * 10));
+
+        done();
+      });
+    });
+  });
+
+  describe('Function: burn(uint256 _amount)', function() {
+    describe('If called when the contract is paused...', function() {
+      it('Should revert', async (done) => {
+        await SpaceLeagueToken.methods.pause().send({ from: owner, gas: '100000' });
+        let personTwoBalance = await SpaceLeagueToken.methods.balanceOf(personTwo).call();
+
+        let revert;
+
+        try {
+          await SpaceLeagueToken.methods.burn(personTwoBalance).send({ from: personTwo, gas: '100000' });
+        } catch (e) {
+          revert = e;
+        }
+        
+        assert.ok(revert instanceof Error);
+        done();
+      });
+    });
+
+    describe('If the function caller tries to burn a larger amount than his/her balance...', function() {
+      it('Should revert', async (done) => {
+        await SpaceLeagueToken.methods.unpause().send({ from: owner, gas: '100000' });
+        
+        // returns 7500
+        let personTwoBalance = await SpaceLeagueToken.methods.balanceOf(personTwo).call();
+
+        let revert;
+
+        try {
+          await SpaceLeagueToken.methods.burn(8000).send({ from: personTwo, gas: '100000' });
+        } catch (e) {
+          revert = e;
+        }
+        
+        assert.ok(revert instanceof Error);
+        done();
+      });
+    });
+
+    describe('If called when the contract is not paused...', function() {
+      it('Should burn the tokens (subtract from totalSupply)', async (done) => {
+        // returns 1 012 500
+        let totalSupply = await SpaceLeagueToken.methods.totalSupply().call();
+        assert.equal(Number(totalSupply), 1012500);
+
+        await SpaceLeagueToken.methods.burn(500).send({ from: personTwo, gas: '100000' });
+
+        totalSupply = await SpaceLeagueToken.methods.totalSupply().call();
+        assert.equal(Number(totalSupply), (1012500 - 500));
+
+        done();
+      });
+
+      it('Should subtract from the caller\'s balance', async (done) => {
+        // returns 7500
+        let personTwoBalance = await SpaceLeagueToken.methods.balanceOf(personTwo).call();
+        assert.equal(Number(personTwoBalance), 7000);
+
+        await SpaceLeagueToken.methods.burn(500).send({ from: personTwo, gas: '100000' });
+
+        personTwoBalance = await SpaceLeagueToken.methods.balanceOf(personTwo).call();
+        assert.equal(Number(personTwoBalance), 6500);
+        
+        done();
+      });
+
+      /*
+      it('Should send ETH (amount burned * burnPercentage) to the burner', async (done) => {
+        let initialEthBalance = await web3.eth.getBalance(accounts[1]);
+        console.log('initialEthBalance: ', initialEthBalance);
+
+        // await SpaceLeagueToken.methods.burn(500).send({ from: personTwo, gas: '100000' });
+
+        // let finalEthBalance = await web3.eth.getBalance(personTwo);
+
+        // assert.notEqual(initialEthBalance, finalEthBalance);
+
+        done();
+      });
+      */
+
+      it('Should emit event: Burn', async (done) => {
+        let logs = await SpaceLeagueToken.methods.burn(500).send({ from: personTwo, gas: '100000' });
+        
+        let burner = logs.events.Burn.returnValues.burner,
+            value = logs.events.Burn.returnValues.value;
+        
+        assert.equal(burner, personTwo);
+        assert.equal(Number(value), 500);
+
+        done();
+      });
+
+      it('Should emit event: Transfer', async (done) => {
+        let logs = await SpaceLeagueToken.methods.burn(500).send({ from: personTwo, gas: '100000' });
+        
+        let from = logs.events.Transfer.returnValues.from,
+            to = logs.events.Transfer.returnValues.to,
+            value = logs.events.Transfer.returnValues.value;
+        
+        assert.equal(from, personTwo);
+        assert.equal(to, '0x0000000000000000000000000000000000000000');
+        assert.equal(Number(value), 500);
+        done();
+      });
+    });
+  });
+
+  describe('Function: burnByGame(uint256 _amount)', function() {
+    describe('If called by any other than the GAME', function () {
+      it('Should revert', async (done) => {
+        let revert;
+
+        try {
+          await SpaceLeagueToken.methods.burnByGame(100).send({ from: personTwo, gas: '100000' });
+        } catch (e) {
+          revert = e;
+        }
+        
+        assert.ok(revert instanceof Error);
+
+        done();
+      });
+    });
+
+    describe('If the function caller tries to burn a larger amount than his/her balance...', function() {
+      it('Should revert', async (done) => {
+        // returns 7500
+        let gameAddress = await SpaceLeagueToken.methods.gameAddress().call();
+        let gameAddressBalance = await SpaceLeagueToken.methods.balanceOf(gameAddress).call();
+
+        let revert;
+
+        try {
+          await SpaceLeagueToken.methods.burnByGame(Number(gameAddressBalance) * 2).send({ from: gameAddress, gas: '100000' });
+        } catch (e) {
+          revert = e;
+        }
+        
+        assert.ok(revert instanceof Error);
+        done();
+      });
+    });
+
+    describe('If called when the contract is not paused...', function() {
+      it('Should burn the tokens (subtract from totalSupply)', async (done) => {
+        // returns 1 010 500
+        let totalSupply = await SpaceLeagueToken.methods.totalSupply().call();
+        assert.equal(Number(totalSupply), 1010500);
+
+        let gameAddress = await SpaceLeagueToken.methods.gameAddress().call();
+        let gameAddressBalance = await SpaceLeagueToken.methods.balanceOf(gameAddress).call();
+
+        await SpaceLeagueToken.methods.burnByGame(500).send({ from: gameAddress, gas: '100000' });
+
+        totalSupply = await SpaceLeagueToken.methods.totalSupply().call();
+        assert.equal(Number(totalSupply), (1010500 - 500));
+
+        done();
+      });
+
+      
+      it('Should subtract from the caller\'s balance', async (done) => {
+        // returns 1 010 000
+        let totalSupply = await SpaceLeagueToken.methods.totalSupply().call();
+        assert.equal(Number(totalSupply), 1010000);
+
+        let gameAddress = await SpaceLeagueToken.methods.gameAddress().call();
+        let initialGameAddressBalance = await SpaceLeagueToken.methods.balanceOf(gameAddress).call();
+
+        await SpaceLeagueToken.methods.burnByGame(500).send({ from: gameAddress, gas: '100000' });
+
+        let finalGameAddressBalance = await SpaceLeagueToken.methods.balanceOf(gameAddress).call();
+        
+        // assert.equal(Number(initialGameAddressBalance), (Number(finalGameAddressBalance) - 500));
+        assert.notEqual(initialGameAddressBalance, finalGameAddressBalance);
+        
+        done();
+      });
+
+      /*
+      it('Should send ETH (amount burned * burnPercentage) to the burner', async (done) => {
+        let initialEthBalance = await web3.eth.getBalance(accounts[1]);
+        console.log('initialEthBalance: ', initialEthBalance);
+
+        // await SpaceLeagueToken.methods.burn(500).send({ from: personTwo, gas: '100000' });
+
+        // let finalEthBalance = await web3.eth.getBalance(personTwo);
+
+        // assert.notEqual(initialEthBalance, finalEthBalance);
+
+        done();
+      });
+      */
+
+      it('Should emit event: Burn', async (done) => {
+        let gameAddress = await SpaceLeagueToken.methods.gameAddress().call();
+
+        let logs = await SpaceLeagueToken.methods.burnByGame(500).send({ from: gameAddress, gas: '100000' });
+        
+        let burner = logs.events.Burn.returnValues.burner,
+            value = logs.events.Burn.returnValues.value;
+        
+        assert.equal(burner, gameAddress);
+        assert.equal(Number(value), 500);
+
+        done();
+      });
+
+      it('Should emit event: Transfer', async (done) => {
+        let gameAddress = await SpaceLeagueToken.methods.gameAddress().call();
+
+        let logs = await SpaceLeagueToken.methods.burnByGame(500).send({ from: gameAddress, gas: '100000' });
+        
+        let from = logs.events.Transfer.returnValues.from,
+            to = logs.events.Transfer.returnValues.to,
+            value = logs.events.Transfer.returnValues.value;
+        
+        assert.equal(from, gameAddress);
+        assert.equal(to, '0x0000000000000000000000000000000000000000');
+        assert.equal(Number(value), 500);
+        done();
+      });
+    });
+  });
+
 });

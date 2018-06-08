@@ -102,11 +102,11 @@ contract SpaceLeagueToken is SpaceLeagueElement {
     _burn(msg.sender, balances[msg.sender]);
   }
 
-  function burnByGame(uint256 _amount) public onlyOwner {
+  function burnByGame(uint256 _amount) public onlyGame {
     _burn(tx.origin, _amount); //solium-disable-line
   }
 
-  function burnAllByGame(address _to) public onlyOwner {
+  function burnAllByGame(address _to) public onlyGame {
     _burn(_to, balances[_to]);
   }
   

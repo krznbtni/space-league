@@ -9,6 +9,8 @@ describe('ItemFactory', function() {
 
   before((done) => {
     let contractsConfig = {
+      "SpaceLeagueCurrency": {},
+      "SpaceLeagueItem": {},
       "ItemFactory": {
         args: [
           "$SpaceLeagueCurrency",
@@ -26,8 +28,9 @@ describe('ItemFactory', function() {
   });
 
   describe('on initialization:', function() {
-    it('should set accounts[0] as the contract owner', async (done) => {
-      console.log(owner);
+    it('should set SPACE_LEAGUE_ITEM_ADDRESS', async (done) => {
+      let SPACE_LEAGUE_ITEM_ADDRESS = await ItemFactory.methods.SPACE_LEAGUE_ITEM_ADDRESS().call();
+      console.log(SPACE_LEAGUE_ITEM_ADDRESS);
       done();
     });
   });

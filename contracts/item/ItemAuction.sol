@@ -20,10 +20,10 @@ contract ItemAuction is ItemFactory {
   /// @param _price price of which the item is to be sold for
   function createAuction(uint256 _tokenId, uint128 _price) public {
     require(
-      msg.sender == erc721.ownerOf(_tokenId),
+      msg.sender == spaceLeagueItem.ownerOf(_tokenId),
       'REVERT: createAuction - function caller is not the token owner.'
     );
-    erc721.transferFrom(msg.sender, ERC721_TOKEN_ADDRESS, _tokenId);
+    spaceLeagueItem.transferFrom(msg.sender, SPACE_LEAGUE_ITEM_ADDRESS, _tokenId);
     Auction memory _auction = Auction({
       seller: msg.sender,
       price: _price
@@ -36,22 +36,22 @@ contract ItemAuction is ItemFactory {
   /// @dev Will transfer ERC20 tokens from the function caller to the auction creator,
   /// @dev and finally the ERC721 token from the ERC721 contract address to the bidder.
   /// @param _tokenId id of the ERC721 token that is to be bid on.
-  function bid(uint256 _tokenId) public {
+  function bidOnAuction(uint256 _tokenId) public {
     Auction memory _auction = tokenIdToAuction[_tokenId];
     require(
-      spaceLeagueToken.balanceOf(msg.sender) >= _auction.price,
+      spaceLeagueCurrency.balanceOf(msg.sender) >= _auction.price,
       'REVERT: bid - function caller has as too low balance'
     );
 
     delete tokenIdToAuction[_tokenId];
-    spaceLeagueToken.transferFrom(msg.sender, _auction.seller, _auction.price);
-    erc721.transferFrom(ERC721_TOKEN_ADDRESS, msg.sender, _tokenId);
+    spaceLeagueCurrency.transferFrom(msg.sender, _auction.seller, _auction.price);
+    spaceLeagueItem.transferFrom(SPACE_LEAGUE_ITEM_ADDRESS, msg.sender, _tokenId);
   }
 
   /// @dev Function to cancel an auction.
   /// @dev Reverts if msg.sender does not equal the auction creator.
   /// @param _tokenId id of the ERC721 token
-  function cancel(uint256 _tokenId) public {
+  function cancelAuction(uint256 _tokenId) public {
     Auction memory _auction = tokenIdToAuction[_tokenId];
     require(
       _auction.seller == msg.sender,
@@ -60,7 +60,7 @@ contract ItemAuction is ItemFactory {
 
     delete tokenIdToAuction[_tokenId];
 
-    erc721.transferFrom(ERC721_TOKEN_ADDRESS, msg.sender, _tokenId);
+    spaceLeagueItem.transferFrom(SPACE_LEAGUE_ITEM_ADDRESS, msg.sender, _tokenId);
   }
 
 }

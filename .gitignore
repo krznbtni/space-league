@@ -62,4 +62,4 @@ typings/
 
 # embark
 .embark
-dist/contracts
+dist

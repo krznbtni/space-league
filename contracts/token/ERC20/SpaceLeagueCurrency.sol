@@ -6,7 +6,7 @@ import '../../SpaceLeagueElement.sol';
 /// @title Token contract for Space League
 /// @author Daniel R (https://github.com/DanielRX)
 /// @author Karzan Botani (https://github.com/botanki)
-contract SpaceLeagueToken is SpaceLeagueElement {
+contract SpaceLeagueCurrency is SpaceLeagueElement {
   using SafeMath for uint256;
   
   uint256 public totalSupply;

@@ -10,7 +10,7 @@ import './ERC721BasicToken.sol';
  * Moreover, it includes approve all functionality using operator terminology
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
-contract ERC721Token is ERC721, ERC721BasicToken {
+contract SpaceLeagueItem is ERC721, ERC721BasicToken {
 
   // Address of itemFactory
   address internal itemFactory;
@@ -24,10 +24,10 @@ contract ERC721Token is ERC721, ERC721BasicToken {
   }
 
   // Token name
-  string internal name_;
+  // string internal name_;
 
   // Token symbol
-  string internal symbol_;
+  // string internal symbol_;
 
   // Mapping from owner to list of owned token IDs
   mapping(address => uint256[]) internal ownedTokens;
@@ -56,17 +56,17 @@ contract ERC721Token is ERC721, ERC721BasicToken {
    * @dev Gets the token name
    * @return string representing the token name
    */
-  function name() public view returns (string) {
-    return name_;
-  }
+  // function name() public view returns (string) {
+  //   return name_;
+  // }
 
   /**
    * @dev Gets the token symbol
    * @return string representing the token symbol
    */
-  function symbol() public view returns (string) {
-    return symbol_;
-  }
+  // function symbol() public view returns (string) {
+  //   return symbol_;
+  // }
 
   /**
    * @dev Returns an URI for a given token ID

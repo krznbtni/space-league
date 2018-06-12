@@ -3,9 +3,10 @@
 
 pragma solidity ^0.4.24;
 
-import 'libs/math/SafeMath.sol';
+import '../ownership/Ownable.sol';
+import '../../libs/math/SafeMath.sol';
 
-contract ClassFactory {
+contract ClassFactory is Ownable {
   using SafeMath for uint256;
 
   struct Class {

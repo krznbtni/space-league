@@ -11,6 +11,12 @@
     ],
     "gas": "auto",
     "contracts": {
+      "ItemFactory": {
+        "args": [
+          "$SpaceLeagueCurrency",
+          "$SpaceLeagueItem"
+        ]
+      }
     }
   }
 }

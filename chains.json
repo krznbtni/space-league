@@ -340,5 +340,127 @@
       }
     },
     "name": "development"
+  },
+  "0xa25a4e659304c609a8547c20774e19701a7f60f2ee4bb487c97f30bdd40b42d2": {
+    "contracts": {
+      "0xdde7f0462442205223d579fc1b19d4614e730309e3e08d2f763e601cf147d6d1": {
+        "name": "SpaceLeagueElement",
+        "address": "0x04D45b51fe4f00b4478F8b0719Fa779f14c8A194"
+      },
+      "0x9957aac1775e2d5ec0c916f7611911fafcfef468f252509342bc4117fd710a0c": {
+        "name": "ClassFactory",
+        "address": "0x10Aa1c9C2ad79b240Dc612cd2c0c0f5513bAfF28"
+      },
+      "0x93d892e3ce52fe521483340ac33acf242e4854f9c7da04d0ee1e60b3e0a3566d": {
+        "name": "SafeMath",
+        "address": "0xd8a512EBD6fd82f44dFFD968EEB0835265497d20"
+      },
+      "0xd641070e404993a3cb7bc916234fe4e736090359438ebb2851bd348972a2adff": {
+        "name": "SafeMath8",
+        "address": "0x494748735312D87C54Ff36E9dc71f90fb800D7Df"
+      },
+      "0xcddb22566496de41e09ed7f5fbc2b3b3df339823e2d6eb97008a3242e97e5bad": {
+        "name": "Pausable",
+        "address": "0xe5731c3df7a510fba6c5b2766251ce631C6B1d78"
+      },
+      "0x8ade1ff0a2b5cf712f41c4eefa6375cac53f121af4bfa28fd722062567c1bab4": {
+        "name": "Manageable",
+        "address": "0x6427A6200Bed37FC1e512BdeA49D25Aa9089CF47"
+      },
+      "0x270d44a5857322b453b243a9762db4b9a92372815ca9069879cbe931b7cc0b30": {
+        "name": "Ownable",
+        "address": "0x8C74e6cCd38c8B61B874B0514577206a0b8Dab98"
+      },
+      "0x167843e4d3f0c5ab4d653c28baf59545fbc4cc22b2503e854e879ca72d055cc2": {
+        "name": "CharacterFactory",
+        "address": "0xAACD4A4624632CbA84adCEda845dE2c1c265f832"
+      },
+      "0xc1808ee2ba298056a7bed50e11ddb93f63c5c944522a0c57b66ba5786bc1d451": {
+        "name": "AddressUtils",
+        "address": "0xfD31b5cE21e86b2B0275d87c1Bae5E43607Fc5Fe"
+      },
+      "0x8cf68db1e5ceafed6ca3fb82a75569f91df49af51607bffccf55985548ac9d63": {
+        "name": "ERC721BasicToken",
+        "address": "0xB89D68FF60A00f867B797a9b337644E87a222bBA"
+      },
+      "0x86af9be0255411fca8a8c6729d5f00d938da75b2294df66ef663b0f1c9e301aa": {
+        "name": "ERC721Holder",
+        "address": "0x8B9AF00A6D29E7D687610E9dDB022c496DB551dE"
+      },
+      "0x2b766b166d652d543f848f543e5b16c5dfe336017321b0cb0df11e84bcf018c8": {
+        "name": "SpaceLeagueItem",
+        "address": "0x1cc93CeDF04b000Ee36Ccd02E95f167C2f3afE0A"
+      },
+      "0x00a71bad6d9f6a714cdc6cb4a8e7b5c88fd8f52e14dc78ad4e25ff0c66b2e73e": {
+        "name": "SpaceLeagueCurrency",
+        "address": "0x5Baf4D88bC454537C51CEC7568a1E23400483abc"
+      },
+      "0x260cac085f2c140261e610938c2e1c6cf332f301dd727905334579af97221b33": {
+        "name": "ItemFactory",
+        "address": "0x321eF1b12d422F6526b9F4D0B11c27be53c80Ee8"
+      }
+    },
+    "name": "development"
+  },
+  "0x872155e7d6566392ceaaa9cb4ffac1f9a5b37b9c323a54c4ec8cdb9fb566e1a4": {
+    "contracts": {
+      "0xdde7f0462442205223d579fc1b19d4614e730309e3e08d2f763e601cf147d6d1": {
+        "name": "SpaceLeagueElement",
+        "address": "0x04D45b51fe4f00b4478F8b0719Fa779f14c8A194"
+      },
+      "0x9957aac1775e2d5ec0c916f7611911fafcfef468f252509342bc4117fd710a0c": {
+        "name": "ClassFactory",
+        "address": "0x10Aa1c9C2ad79b240Dc612cd2c0c0f5513bAfF28"
+      },
+      "0x93d892e3ce52fe521483340ac33acf242e4854f9c7da04d0ee1e60b3e0a3566d": {
+        "name": "SafeMath",
+        "address": "0xd8a512EBD6fd82f44dFFD968EEB0835265497d20"
+      },
+      "0xd641070e404993a3cb7bc916234fe4e736090359438ebb2851bd348972a2adff": {
+        "name": "SafeMath8",
+        "address": "0x494748735312D87C54Ff36E9dc71f90fb800D7Df"
+      },
+      "0xcddb22566496de41e09ed7f5fbc2b3b3df339823e2d6eb97008a3242e97e5bad": {
+        "name": "Pausable",
+        "address": "0xe5731c3df7a510fba6c5b2766251ce631C6B1d78"
+      },
+      "0x8ade1ff0a2b5cf712f41c4eefa6375cac53f121af4bfa28fd722062567c1bab4": {
+        "name": "Manageable",
+        "address": "0x6427A6200Bed37FC1e512BdeA49D25Aa9089CF47"
+      },
+      "0x270d44a5857322b453b243a9762db4b9a92372815ca9069879cbe931b7cc0b30": {
+        "name": "Ownable",
+        "address": "0x8C74e6cCd38c8B61B874B0514577206a0b8Dab98"
+      },
+      "0x167843e4d3f0c5ab4d653c28baf59545fbc4cc22b2503e854e879ca72d055cc2": {
+        "name": "CharacterFactory",
+        "address": "0xAACD4A4624632CbA84adCEda845dE2c1c265f832"
+      },
+      "0xc1808ee2ba298056a7bed50e11ddb93f63c5c944522a0c57b66ba5786bc1d451": {
+        "name": "AddressUtils",
+        "address": "0xfD31b5cE21e86b2B0275d87c1Bae5E43607Fc5Fe"
+      },
+      "0x8cf68db1e5ceafed6ca3fb82a75569f91df49af51607bffccf55985548ac9d63": {
+        "name": "ERC721BasicToken",
+        "address": "0xB89D68FF60A00f867B797a9b337644E87a222bBA"
+      },
+      "0x86af9be0255411fca8a8c6729d5f00d938da75b2294df66ef663b0f1c9e301aa": {
+        "name": "ERC721Holder",
+        "address": "0x8B9AF00A6D29E7D687610E9dDB022c496DB551dE"
+      },
+      "0x2b766b166d652d543f848f543e5b16c5dfe336017321b0cb0df11e84bcf018c8": {
+        "name": "SpaceLeagueItem",
+        "address": "0x1cc93CeDF04b000Ee36Ccd02E95f167C2f3afE0A"
+      },
+      "0x00a71bad6d9f6a714cdc6cb4a8e7b5c88fd8f52e14dc78ad4e25ff0c66b2e73e": {
+        "name": "SpaceLeagueCurrency",
+        "address": "0x5Baf4D88bC454537C51CEC7568a1E23400483abc"
+      },
+      "0x9f4d8345faf6cad22bba9e44c01f839d6a75a59b6e11dc510316edd067ede055": {
+        "name": "ItemFactory",
+        "address": "0x321eF1b12d422F6526b9F4D0B11c27be53c80Ee8"
+      }
+    },
+    "name": "development"
   }
 }

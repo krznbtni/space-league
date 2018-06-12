@@ -43,14 +43,14 @@ contract ItemFactory is Ownable {
     spaceLeagueCurrency.transferFrom(_caller, address(this), EXAMPLE_MINT_PRICE);
 
     // burnPercentage might cause a problem?
-    spaceLeagueCurrency.burnByGame(EXAMPLE_MINT_PRICE);
+    // spaceLeagueCurrency.burnByGame(EXAMPLE_MINT_PRICE);
 
     Item memory _item = Item({
       attackSpeed: 1
     });
 
     uint256 _itemId = items.push(_item).sub(1);
-    spaceLeagueItem.mintByGame(address(this), _caller, _itemId);
+    // spaceLeagueItem.mintByGame(address(this), _caller, _itemId);
   }
 
   function burnItem(uint256 _itemId) public {

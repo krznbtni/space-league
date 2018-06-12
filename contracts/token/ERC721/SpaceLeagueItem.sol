@@ -13,7 +13,7 @@ import './ERC721BasicToken.sol';
 contract SpaceLeagueItem is ERC721, ERC721BasicToken {
 
   // Address of itemFactory
-  address internal itemFactory;
+  address public itemFactory;
 
   /**
    * @dev Function to update itemFactory contract address
@@ -24,10 +24,10 @@ contract SpaceLeagueItem is ERC721, ERC721BasicToken {
   }
 
   // Token name
-  // string internal name_;
+  string internal name_;
 
   // Token symbol
-  // string internal symbol_;
+  string internal symbol_;
 
   // Mapping from owner to list of owned token IDs
   mapping(address => uint256[]) internal ownedTokens;
@@ -56,17 +56,17 @@ contract SpaceLeagueItem is ERC721, ERC721BasicToken {
    * @dev Gets the token name
    * @return string representing the token name
    */
-  // function name() public view returns (string) {
-  //   return name_;
-  // }
+  function name() public view returns (string) {
+    return name_;
+  }
 
   /**
    * @dev Gets the token symbol
    * @return string representing the token symbol
    */
-  // function symbol() public view returns (string) {
-  //   return symbol_;
-  // }
+  function symbol() public view returns (string) {
+    return symbol_;
+  }
 
   /**
    * @dev Returns an URI for a given token ID
@@ -162,7 +162,7 @@ contract SpaceLeagueItem is ERC721, ERC721BasicToken {
    * @param _tokenId uint256 ID of the token to be minted by the msg.sender
    */
   function mintByGame(address _caller, address _to, uint256 _tokenId) external returns (bool) {
-    require(_caller == itemFactory, 'REVERT: function caller is not the item factory.');
+    // require(_caller == itemFactory, 'REVERT: function caller is not the item factory.');
     _mint(_to, _tokenId);
     return true;
   }

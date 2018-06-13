@@ -67,7 +67,7 @@ describe('ItemFactory', function() {
       });
     });
 
-    describe('When called it...', function() {
+    describe('When called by the owner, it...', function() {
       it('Should update the game address', async (done) => {
         await SpaceLeagueElement.methods.setGame(owner).send({ from: owner, gas: '100000' });
         
@@ -108,7 +108,9 @@ describe('ItemFactory', function() {
         let revert;
 
         try {
-          await ItemFactory.methods.mintItem().send({ from: personOne, gas: '100000' });
+          await ItemFactory.methods.mintItem().send({ from: personOne, gas: '1000000' });
+          let allowance = await SpaceLeagueCurrency.methods.allowance(personOne, ItemFactory.options.address).call();
+          console.log('allowance: ', allowance);
         } catch (e) {
           revert = e;
           console.log(e);

@@ -25,14 +25,18 @@ contract ItemFactory is Ownable {
   constructor(address _spaceLeagueCurrency, address _spaceLeagueItem) public {
     SPACE_LEAGUE_CURRENCY_ADDRESS = _spaceLeagueCurrency;
     SPACE_LEAGUE_ITEM_ADDRESS = _spaceLeagueItem;
+    spaceLeagueCurrency = SpaceLeagueCurrency(SPACE_LEAGUE_CURRENCY_ADDRESS);
+    spaceLeagueItem = SpaceLeagueItem(SPACE_LEAGUE_ITEM_ADDRESS);
   }
 
   function setSpaceLeagueCurrencyAddress(address _spaceLeagueCurrency) public onlyOwner {
     SPACE_LEAGUE_CURRENCY_ADDRESS = _spaceLeagueCurrency;
+    spaceLeagueCurrency = SpaceLeagueCurrency(SPACE_LEAGUE_CURRENCY_ADDRESS);
   }
 
   function setERC721Address(address _spaceLeagueItem) public onlyOwner {
     SPACE_LEAGUE_ITEM_ADDRESS = _spaceLeagueItem;
+    spaceLeagueItem = SpaceLeagueItem(SPACE_LEAGUE_ITEM_ADDRESS);
   }
 
   function mintItem() public {
@@ -40,9 +44,10 @@ contract ItemFactory is Ownable {
   }
 
   function _mintItem(address _caller) private {
+    spaceLeagueCurrency.approve(address(this), EXAMPLE_MINT_PRICE);
     spaceLeagueCurrency.transferFrom(_caller, address(this), EXAMPLE_MINT_PRICE);
 
-    // burnPercentage might cause a problem?
+    // // burnPercentage might cause a problem?
     // spaceLeagueCurrency.burnByGame(EXAMPLE_MINT_PRICE);
 
     Item memory _item = Item({
@@ -50,7 +55,7 @@ contract ItemFactory is Ownable {
     });
 
     uint256 _itemId = items.push(_item).sub(1);
-    // spaceLeagueItem.mintByGame(address(this), _caller, _itemId);
+    spaceLeagueItem.mintByGame(address(this), _caller, _itemId);
   }
 
   function burnItem(uint256 _itemId) public {
@@ -61,6 +66,4 @@ contract ItemFactory is Ownable {
   function giveItem(address _to, uint256 _tokenId) public {
     spaceLeagueItem.transferFrom(msg.sender, _to, _tokenId);
   }
-
-  // TODO: Disenchant
 }

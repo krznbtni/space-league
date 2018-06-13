@@ -162,7 +162,7 @@ contract SpaceLeagueItem is ERC721, ERC721BasicToken {
    * @param _tokenId uint256 ID of the token to be minted by the msg.sender
    */
   function mintByGame(address _caller, address _to, uint256 _tokenId) external returns (bool) {
-    // require(_caller == itemFactory, 'REVERT: function caller is not the item factory.');
+    require(_caller == itemFactory, 'REVERT: function caller is not the item factory.');
     _mint(_to, _tokenId);
     return true;
   }
@@ -183,6 +183,7 @@ contract SpaceLeagueItem is ERC721, ERC721BasicToken {
   /**
    * @dev External _burn that can be called from itemFactory
    * @dev Reverts if the caller is not the itemFactory
+   * @param _caller address of the caller
    * @param _owner owner of the token to burn
    * @param _tokenId uint256 ID of the token being burned by the msg.sender
    */

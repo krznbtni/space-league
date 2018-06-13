@@ -7,7 +7,9 @@ describe('ItemFactory', function() {
   let accounts,
       owner,
       personOne,
-      personTwo;
+      personTwo,
+      personThree,
+      EXAMPLE_MINT_PRICE;
 
   before((done) => {
     let contractsConfig = {
@@ -22,12 +24,14 @@ describe('ItemFactory', function() {
       }
     };
 
-    EmbarkSpec.deployAll(contractsConfig, async (theAccounts) => {
+    EmbarkSpec.deployAll(contractsConfig, async (allAccounts) => {
       web3 = EmbarkSpec.web3;
-      accounts = theAccounts;
+      accounts = allAccounts;
       owner = await ItemFactory.methods.owner().call();
       personOne = accounts[1];
       personTwo = accounts[2];
+      personThree = accounts[3];
+      EXAMPLE_MINT_PRICE = await ItemFactory.methods.EXAMPLE_MINT_PRICE().call();
       done();
     });
   });
@@ -103,16 +107,94 @@ describe('ItemFactory', function() {
   });
 
   describe('Function: ItemFactory.mintItem()', function() {
-    describe('When called, it...', function() {
-      it('Should mint a new item', async (done) => {
+    describe('If called when no allowance has been set...', function() {
+      it('Should revert', async (done) => {
         let revert;
 
         try {
           await ItemFactory.methods.mintItem().send({ from: personOne, gas: '1000000' });
-          let allowance = await SpaceLeagueCurrency.methods.allowance(personOne, ItemFactory.options.address).call();
-          console.log('allowance: ', allowance);
         } catch (e) {
           revert = e;
+        }
+
+        assert.ok(revert instanceof Error);
+        done();
+      });
+    });
+
+    describe('When called, it...', function() {
+      it('Should mint a new item', async (done) => {
+        await SpaceLeagueCurrency.methods.approve(ItemFactory.options.address, EXAMPLE_MINT_PRICE).send({ from: personOne, gas: '100000' });
+        let allowance = await SpaceLeagueCurrency.methods.allowance(personOne, ItemFactory.options.address).call();
+        assert.equal(allowance, EXAMPLE_MINT_PRICE);
+        
+        // will be item 
+        await ItemFactory.methods.mintItem().send({ from: personOne, gas: '1000000' });
+
+        allowance = await SpaceLeagueCurrency.methods.allowance(personOne, ItemFactory.options.address).call();
+        assert.equal(allowance, 0);
+
+        let itemTotalSupply = await SpaceLeagueItem.methods.totalSupply().call();
+        assert.equal(itemTotalSupply, 1);
+
+        let ownerOf = await SpaceLeagueItem.methods.ownerOf(0).call();
+        assert.equal(ownerOf, personOne);
+
+        done();
+      });
+    });
+  });
+
+  describe('Function: burnItem(uint256 _itemId)', function() {
+    describe('If called by any other than the item owner, it..', function() {
+      it('Should revert', async (done) => {
+        let revert;
+
+        try {
+          await ItemFactory.methods.burnItem(0).send({ from: personTwo, gas: '1000000' });
+        } catch (e) {
+          revert = e;
+        }
+        
+        assert.ok(revert instanceof Error);
+        done();
+      });
+    });
+
+    describe('If called by the item owner, it...', function() {
+      it('Should burn the item', async (done) => {
+        let ownerOf = await SpaceLeagueItem.methods.ownerOf(0).call();
+        assert.equal(ownerOf, personOne);
+
+        let exists = await SpaceLeagueItem.methods.exists(0).call();
+        assert.equal(true, exists);
+
+        await ItemFactory.methods.burnItem(0).send({ from: personOne, gas: '1000000' });
+
+        exists = await SpaceLeagueItem.methods.exists(0).call();
+        assert.equal(false, exists);
+
+        done();
+      }); 
+    });
+  });
+
+  describe('Function: donateItem(address _to, uint256 _tokenId)', function() {
+    describe('If called by the item owner it...', function() {
+      it('Should send the item from owner to receiver', async (done) => {
+        await SpaceLeagueCurrency.methods.approve(ItemFactory.options.address, EXAMPLE_MINT_PRICE).send({ from: personOne, gas: '100000' });
+        await ItemFactory.methods.mintItem().send({ from: personOne, gas: '1000000' });
+
+        let exists = await SpaceLeagueItem.methods.exists(1).call();
+        assert.equal(exists, true);
+
+        let ownerOf = await SpaceLeagueItem.methods.ownerOf(1).call();
+        assert.equal(ownerOf, personOne);
+
+        try {
+          await SpaceLeagueItem.methods.approve(ItemFactory.options.address, 1).send({ from: personOne, gas: '1000000' });
+          await ItemFactory.methods.donateItem(personTwo, 1).send({ from: personOne, gas: '1000000' });
+        } catch (e) {
           console.log(e);
         }
 
@@ -120,7 +202,6 @@ describe('ItemFactory', function() {
       });
     });
   });
-
 
 
 });

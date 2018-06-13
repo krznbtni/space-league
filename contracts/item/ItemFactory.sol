@@ -40,7 +40,7 @@ contract ItemFactory is Ownable {
   }
 
   // FOR THIS FUNCTION TO WORK, YOU HAVE TO CALL
-  // SpaceLeagueCurrency.approve
+  // await SpaceLeagueCurrency.methods.approve(ItemFactory.options.address, EXAMPLE_MINT_PRICE).send({ from: personOne, gas: '100000' });
   // LOOK UP: approveAndCall
   function mintItem() public {
     _mintItem(msg.sender);
@@ -67,7 +67,7 @@ contract ItemFactory is Ownable {
   }
 
   // FOR THIS FUNCTION TO WORK, YOU HAVE TO CALL
-  // SpaceLeagueItem.approve
+  // await SpaceLeagueItem.methods.approve(ItemFactory.options.address, 1).send({ from: personOne, gas: '1000000' });
   function donateItem(address _to, uint256 _itemId) public {
     _donateItem(msg.sender, _to, _itemId);
   }

@@ -17,13 +17,7 @@ contract ItemFactory is Ownable {
   SpaceLeagueItem spaceLeagueItem = SpaceLeagueItem(SPACE_LEAGUE_ITEM_ADDRESS);
 
   struct Item {
-    uint8 rarity;
-    uint8 attack;
-    uint8 defense;
-    uint8 energyRegeneration;
-    uint8 health;
-    uint8 healthRegeneration;
-    uint8 strength;
+    uint8 attackSpeed;
   }
 
   Item[] public items;
@@ -55,16 +49,8 @@ contract ItemFactory is Ownable {
   function _mintItem(address _caller) private {
     spaceLeagueCurrency.transferFrom(_caller, address(this), EXAMPLE_MINT_PRICE);
 
-    // add burn
-
     Item memory _item = Item({
-      rarity: 0,
-      attack: 0,
-      defense: 0,
-      energyRegeneration: 0,
-      health: 0,
-      healthRegeneration: 0,
-      strength: 0
+      attackSpeed: 1
     });
 
     uint256 _itemId = items.push(_item).sub(1);
@@ -87,6 +73,6 @@ contract ItemFactory is Ownable {
   }
 
   function _donateItem(address _from, address _to, uint256 _itemId) private {
-    spaceLeagueItem.safeTransferFrom(_from, _to, _itemId);
+    spaceLeagueItem.transferFrom(_from, _to, _itemId);
   }
 }

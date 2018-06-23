@@ -84,3 +84,13 @@
 11:43:36.715441 table@remove removed @16
 13:04:31.901472 db@close closing
 13:04:31.901845 db@close done T·368.701µs
+=============== Jun 23, 2018 (CEST) ===============
+13:12:11.481077 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+13:12:11.481352 version@stat F·[0 1] S·402KiB[0B 402KiB] Sc·[0.00 0.00]
+13:12:11.481400 db@open opening
+13:12:11.481457 journal@recovery F·1
+13:12:11.484410 journal@recovery recovering @18
+13:12:11.512667 memdb@flush created L0@21 N·8327 S·481KiB "\x05\xdbe..\x85J\xd4,v16118":"\xfc\xf8s..\xc0\x9d\xb8,v16038"
+13:12:11.515511 version@stat F·[1 1] S·884KiB[481KiB 402KiB] Sc·[0.25 0.00]
+13:12:11.520474 db@janitor F·4 G·0
+13:12:11.520509 db@open done T·39.082043ms

@@ -22,11 +22,17 @@ Cloning the repository:
 Change into the repository's directory and install dependencies:
 > $ cd space-league && npm install
 
-Initialize the blockchain simulator:
-> $ embark simulator
+Initialize the private network:
+> $ embark blockchain privnet
 
 Open up a second terminal and initialize the project:
 > $ embark run
+
+Open up a third terminal and connect to the geth IPC:
+> $ geth attach config/privnet/geth.ipc
+
+To test the Node.js file, open up a fourth terminal:
+> $ npm start
 
 # Built With
 * [Embark](https://github.com/embark-framework/embark)

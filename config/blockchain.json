@@ -45,13 +45,21 @@
       "password": "config/livenet/password"
     }
   },
-  "privatenet": {
-    "enabled": true,
+  "privnet": {
+    "mineWhenNeeded": true,
+    "targetGasLimit": 8000000,
     "networkType": "custom",
+    "networkId": "919293",
+    "datadir": "config/privnet",
+    "account": {
+      "password": "config/privnet/password"
+    },
     "rpcHost": "localhost",
     "rpcPort": 8545,
-    "datadir": "yourdatadir",
-    "networkId": "123",
-    "bootnodes": ""
+    "rpcCorsDomain": "auto",
+    "wsRPC": true,
+    "wsOrigins": "auto",
+    "wsHost": "localhost",
+    "wsPort": 8546
   }
 }

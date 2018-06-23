@@ -17,11 +17,7 @@ contract ItemFactory is Ownable {
   SpaceLeagueItem spaceLeagueItem = SpaceLeagueItem(SPACE_LEAGUE_ITEM_ADDRESS);
 
   struct Item {
-    uint8 attack;
-    uint8 defense;
-    uint8 durability;
-    uint8 energyRegeneration;
-    uint8 health;
+    uint8 attackSpeed;
   }
 
   Item[] public items;
@@ -43,27 +39,40 @@ contract ItemFactory is Ownable {
     spaceLeagueItem = SpaceLeagueItem(SPACE_LEAGUE_ITEM_ADDRESS);
   }
 
-  // Now for step 4:
-  // 4.1 My server will log all blocks. When a block arrives that contains a minting, the server will separately call spaceLeagueToken.methods.transferFrom().
-  // 4.2 Our result variable will be the value of rng(blockNumber)
-  // 4.3 The server calls ERC721.mint with result and user as paramters.(ändrad)
-  uint8 public constant COMMON = 69; // 1-2 properties
-  uint8 public constant UNCOMMON = 18; // 3-4 properties
-  uint8 public constant RARE = 9; // 5-6 properties
-  uint8 public constant MYTHICAL = 3; // 7-8 properties
-  uint8 public constant LEGENDARY = 1; // 8+ properties
+  // FOR THIS FUNCTION TO WORK, YOU HAVE TO CALL
+  // await SpaceLeagueCurrency.methods.approve(ItemFactory.options.address, EXAMPLE_MINT_PRICE).send({ from: personOne, gas: '100000' });
+  // LOOK UP: approveAndCall
+  function mintItem() public {
+    _mintItem(msg.sender);
+  }
 
-  uint8 public constant BLOCK_OFFSET = 1;
-  uint256 mintQueue;
+  function _mintItem(address _caller) private {
+    spaceLeagueCurrency.transferFrom(_caller, address(this), EXAMPLE_MINT_PRICE);
 
-  mapping (address => mapping(uint256 => uint256)) internal blocksToCheck;
+    Item memory _item = Item({
+      attackSpeed: 1
+    });
 
-  event OnBuyItem(address buyer, address spender, uint256 value);
+    uint256 _itemId = items.push(_item).sub(1);
+    spaceLeagueItem.mintByGame(address(this), _caller, _itemId);
+  }
 
-  // HAS TO BE CALLED SEPARATELY: spaceLeagueCurrency.approve(address(this), EXAMPLE_MINT_PRICE);
-  function buyItem() public {
-    blocksToCheck[msg.sender][mintQueue++] = block.number + BLOCK_OFFSET;
-    spaceLeagueCurrency.transferFrom(msg.sender, address(this), EXAMPLE_MINT_PRICE);
-    emit OnBuyItem(msg.sender, address(this), EXAMPLE_MINT_PRICE);
+  function burnItem(uint256 _itemId) public {
+    _burnItem(msg.sender, _itemId);
+  }
+
+  function _burnItem(address _owner, uint256 _itemId) private {
+    spaceLeagueItem.burnByGame(address(this), _owner, _itemId);
+    delete items[_itemId];
+  }
+
+  // FOR THIS FUNCTION TO WORK, YOU HAVE TO CALL
+  // await SpaceLeagueItem.methods.approve(ItemFactory.options.address, 1).send({ from: personOne, gas: '1000000' });
+  function donateItem(address _to, uint256 _itemId) public {
+    _donateItem(msg.sender, _to, _itemId);
+  }
+
+  function _donateItem(address _from, address _to, uint256 _itemId) private {
+    spaceLeagueItem.transferFrom(_from, _to, _itemId);
   }
 }

@@ -2,16 +2,16 @@
 An Ethereum based RPG.
 
 ### Getting Started
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
 
 #### Prerequisites
 What things you need to install the software and how to install them
 
-Installing the Embark framework on your machine:
-> $ npm install embark -g
+Installing the Truffle framework on your machine:
+> $ npm install truffle -g
 
-Installing Ethereum blockchain simulator:
-> $ npm install ethereumjs-testrpc -g
+Installing Ganache CLI (Ethereum blockchain simulator):
+> $ npm install ganache-cli -g
 
 #### Installing
 A step by step series of examples that tell you how to get a development env running
@@ -22,20 +22,17 @@ Cloning the repository:
 Change into the repository's directory and install dependencies:
 > $ cd space-league && npm install
 
-Initialize the private network:
-> $ embark blockchain privnet
+Start Ganache CLI:
+> $ ganache-cli -i 919293 --deterministic
 
-Open up a second terminal and initialize the project:
-> $ embark run
+Open up a second terminal to compile & migrate (deploy) the contracts to the development network:
+> $ truffle compile && truffle migrate --network=development
 
-Open up a third terminal and connect to the geth IPC:
-> $ geth attach config/privnet/geth.ipc
-
-To test the Node.js file, open up a fourth terminal:
-> $ npm start
+To test the Node.js file, open up a third terminal:
+> $ node server.js
 
 # Built With
-* [Embark](https://github.com/embark-framework/embark)
+* [Truffle](https://github.com/trufflesuite/truffle)
 
 # Authors
 * [Karzan Botani](https://github.com/botanki)

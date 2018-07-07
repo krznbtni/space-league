@@ -75,17 +75,33 @@ contract("ItemFactory", function () {
 
 
   describe('Function: SpaceLeagueItem.buyItem()', function() {
-    it('should emit an event', async () => {
-      let buyItem = await ItemFactory.methods.buyItem().send({ from: personOne, gas: '1000000' });
+    it('should send', async () => {
+      // call ERC20.approve so transferFrom works
+      await SpaceLeagueCurrency.methods.approve(ItemFactory.address, 15).send({ from: personOne, gas: '1000000' });
 
-      // let buyer = buyItem.events.OnBuyItem.returnValues.buyer;
-      // console.log('buyer: ', buyer);
+      let personOneBalance = await SpaceLeagueCurrency.methods.balanceOf(personOne).call();
+      console.log('personOneBalance 1: ', personOneBalance);
 
-      web3.eth.subscribe('logs', {}, function(err, res) {
-        if (!err) {
-          console.log('res: ', res);
-        }
-      });
+      let itemFactoryBalance = await SpaceLeagueCurrency.methods.balanceOf(ItemFactory.address).call();
+      console.log('itemFactoryBalance 1: ', itemFactoryBalance);
+      
+      // get allowance
+      let allowance = await SpaceLeagueCurrency.methods.allowance(personOne, ItemFactory.address).call();
+      console.log('allowance1: ', allowance);
+
+      // call buyItem
+      let x = await ItemFactory.methods.buyItem().send({ from: personOne, gas: '1000000' });
+      console.log(x.events);
+
+      personOneBalance = await SpaceLeagueCurrency.methods.balanceOf(personOne).call();
+      console.log('personOneBalance 2: ', personOneBalance);
+
+      // check balance
+      itemFactoryBalance = await SpaceLeagueCurrency.methods.balanceOf(ItemFactory.address).call();
+      console.log('itemFactoryBalance 2: ', itemFactoryBalance);
+
+      allowance = await SpaceLeagueCurrency.methods.allowance(personOne, ItemFactory.address).call();
+      console.log('allowance2: ', allowance);
     });
   });
 

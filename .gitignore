@@ -60,6 +60,5 @@ typings/
 
 .DS_Store
 
-# embark
-.embark
-dist
+# ignore the Truffle build folder
+build/

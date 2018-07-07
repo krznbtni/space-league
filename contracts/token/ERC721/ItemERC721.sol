@@ -10,7 +10,7 @@ import './ERC721BasicToken.sol';
  * Moreover, it includes approve all functionality using operator terminology
  * @dev see https://github.com/ethereum/EIPs/blob/master/EIPS/eip-721.md
  */
-contract SpaceLeagueItem is ERC721, ERC721BasicToken {
+contract ItemERC721 is ERC721, ERC721BasicToken {
 
   // Address of itemFactory
   address public itemFactory;

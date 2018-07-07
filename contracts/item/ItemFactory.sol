@@ -1,36 +1,51 @@
 pragma solidity ^0.4.24;
 
 import '../token/ERC20/SpaceLeagueCurrency.sol';
-import '../token/ERC721/SpaceLeagueItem.sol';
+import '../token/ERC721/ItemERC721.sol';
 import '../ownership/Ownable.sol';
 import '../../libs/math/SafeMath.sol';
 
 contract ItemFactory is Ownable {
   using SafeMath for uint256;
 
-  uint256 public EXAMPLE_MINT_PRICE = 15;
-
   address public SPACE_LEAGUE_CURRENCY_ADDRESS;
-  address public SPACE_LEAGUE_ITEM_ADDRESS;
+
+  uint8 public constant COMMON = 69; // 1-2 properties
+  uint8 public constant UNCOMMON = 18; // 3-4 properties
+  uint8 public constant RARE = 9; // 5-6 properties
+  uint8 public constant MYTHICAL = 3; // 7-8 properties
+  uint8 public constant LEGENDARY = 1; // 8-10 properties
+  uint8 public BLOCK_OFFSET = 1;
+  uint104 public EXAMPLE_MINT_PRICE = 15;
+  uint256 nonce;
+
+  event OnBuyItem(uint256 indexed blockNumber, address indexed player);
 
   SpaceLeagueCurrency spaceLeagueCurrency = SpaceLeagueCurrency(SPACE_LEAGUE_CURRENCY_ADDRESS);
-  SpaceLeagueItem spaceLeagueItem = SpaceLeagueItem(SPACE_LEAGUE_ITEM_ADDRESS);
 
+  // The properties can be data packed later on.
   struct Item {
-    uint8 attack;
-    uint8 defense;
-    uint8 durability;
-    uint8 energyRegeneration;
-    uint8 health;
+    uint8 prop1;
+    uint8 prop2;
+    uint8 prop3;
+    uint8 prop4;
+    uint8 prop5;
+    uint8 prop6;
+    uint8 prop7;
+    uint8 prop8;
+    uint8 prop9;
+    uint8 prop10;
+    uint8 prop11;
+    uint8 prop12;
+    uint8 prop13;
+    uint8 prop14;
   }
 
   Item[] public items;
 
-  constructor(address _spaceLeagueCurrency, address _spaceLeagueItem) public {
+  constructor(address _spaceLeagueCurrency) public {
     SPACE_LEAGUE_CURRENCY_ADDRESS = _spaceLeagueCurrency;
-    SPACE_LEAGUE_ITEM_ADDRESS = _spaceLeagueItem;
     spaceLeagueCurrency = SpaceLeagueCurrency(SPACE_LEAGUE_CURRENCY_ADDRESS);
-    spaceLeagueItem = SpaceLeagueItem(SPACE_LEAGUE_ITEM_ADDRESS);
   }
 
   function setSpaceLeagueCurrencyAddress(address _spaceLeagueCurrency) public onlyOwner {
@@ -38,32 +53,126 @@ contract ItemFactory is Ownable {
     spaceLeagueCurrency = SpaceLeagueCurrency(SPACE_LEAGUE_CURRENCY_ADDRESS);
   }
 
-  function setERC721Address(address _spaceLeagueItem) public onlyOwner {
-    SPACE_LEAGUE_ITEM_ADDRESS = _spaceLeagueItem;
-    spaceLeagueItem = SpaceLeagueItem(SPACE_LEAGUE_ITEM_ADDRESS);
+  function buyItem() public {
+    _buyItem(msg.sender);
   }
 
-  // Now for step 4:
-  // 4.1 My server will log all blocks. When a block arrives that contains a minting, the server will separately call spaceLeagueToken.methods.transferFrom().
-  // 4.2 Our result variable will be the value of rng(blockNumber)
-  // 4.3 The server calls ERC721.mint with result and user as paramters.(ändrad)
-  uint8 public constant COMMON = 69; // 1-2 properties
-  uint8 public constant UNCOMMON = 18; // 3-4 properties
-  uint8 public constant RARE = 9; // 5-6 properties
-  uint8 public constant MYTHICAL = 3; // 7-8 properties
-  uint8 public constant LEGENDARY = 1; // 8+ properties
+  // HAS TO BE CALLED SEPARATELY: spaceLeagueCurrency.approve
+  function _buyItem(address _player) private {
+    spaceLeagueCurrency.transferFrom(_player, address(this), EXAMPLE_MINT_PRICE);
+    emit OnBuyItem((block.number + BLOCK_OFFSET), _player);
+  }
 
-  uint8 public constant BLOCK_OFFSET = 1;
-  uint256 mintQueue;
+  /// @dev Roll number between two specific values.
+  /// @param _blockNumber used for salting.
+  /// @param _player player address. Used for salting.
+  /// @param _min minimum value.
+  /// @param _max maximum value.
+  /// @return result rolled number.
+  function _roll(uint256 _blockNumber, address _player, uint256 _min, uint256 _max) private returns (uint256 result) {
+    require(_min < _max);
 
-  mapping (address => mapping(uint256 => uint256)) internal blocksToCheck;
+    // will be moved at a later time. So this function can be a view modifier.
+    nonce++;
 
-  event OnBuyItem(address buyer, address spender, uint256 value);
+    uint256 rand = uint256(
+      keccak256(abi.encodePacked(blockhash(_blockNumber), _player, nonce))
+    );
 
-  // HAS TO BE CALLED SEPARATELY: spaceLeagueCurrency.approve(address(this), EXAMPLE_MINT_PRICE);
-  function buyItem() public {
-    blocksToCheck[msg.sender][mintQueue++] = block.number + BLOCK_OFFSET;
-    spaceLeagueCurrency.transferFrom(msg.sender, address(this), EXAMPLE_MINT_PRICE);
-    emit OnBuyItem(msg.sender, address(this), EXAMPLE_MINT_PRICE);
+    return result = _min + (rand % ((_max - _min) + 1));
+  }
+
+  /// @dev Roll which props the item will have.
+  /// @param _blockNumber used for salting.
+  /// @param _player player address. Used for salting.
+  /// @param _numberOfProps the amount of numbers to generate.
+  function _rollMultiple(uint256 _blockNumber, address _player, uint256 _numberOfProps) private returns (uint256[]) {
+    uint256 count = _numberOfProps;
+    
+    // Create an in memory array to store props
+    uint256[] memory props = new uint256[](15); // 15 slot array because we have 15 props.
+
+    do {
+      uint256 index = _roll(_blockNumber, _player, 0, 14); // 0-14 because we have 15 props in total.
+
+      if (props[index] == 0) {
+        props[index] = 1;
+        count--;
+      }
+
+    } while (0 < count);
+
+    return props;
+  }
+
+  /// @dev For the time being, this function calculates ...
+  /// item rarity, numberOfProperties (how many properties an item will have) ...
+  /// and decides which props an item will have.
+  /// @param _blockNumber block number used for RNG.
+  /// @param _player player address. Used for RNG.
+  /// @return stats the total amount of stat points the item has.
+  /// @return numberOfProperties the number of properties the item will have.
+  /// @return decidedProps which properties the item will have.
+  function calculate(uint256 _blockNumber, address _player) public returns (uint256 stats, uint256 numberOfProperties, uint256[] decidedProps) {
+    uint256 rarity = _roll(_blockNumber, _player, 0, 100);
+
+    if (rarity <= LEGENDARY) {
+      stats = 150;
+      numberOfProperties = _roll(_blockNumber, _player, 8, 10);
+    }
+
+    else if (rarity <= MYTHICAL) {
+      stats = 80;
+      numberOfProperties = _roll(_blockNumber, _player, 7, 8);
+    }
+
+    else if (rarity <= RARE) {
+      stats = 50;
+      numberOfProperties = _roll(_blockNumber, _player, 5, 6);
+    }
+
+    else if (rarity <= UNCOMMON) {
+      stats = 25;
+      numberOfProperties = _roll(_blockNumber, _player, 3, 4);
+    }
+
+    else {
+      stats = 10;
+      numberOfProperties = _roll(_blockNumber, _player, 1, 2);
+    }
+
+    decidedProps = _rollMultiple(_blockNumber, _player, numberOfProperties);
+    mintItem(stats, decidedProps);
+
+    return (stats, numberOfProperties, decidedProps);
+  }
+  
+  function mintItem(uint256 _stats, uint256[] _decidedProps) private {
+    for (uint256 i = 0; i < _decidedProps.length; i++) {
+      if (_decidedProps[i] == 1) {
+        _decidedProps[i] += _stats;
+      }
+
+      i++;
+    }
+
+    Item memory _item = Item({
+      prop1: uint8(_decidedProps[0]),
+      prop2: uint8(_decidedProps[1]),
+      prop3: uint8(_decidedProps[2]),
+      prop4: uint8(_decidedProps[3]),
+      prop5: uint8(_decidedProps[4]),
+      prop6: uint8(_decidedProps[5]),
+      prop7: uint8(_decidedProps[6]),
+      prop8: uint8(_decidedProps[7]),
+      prop9: uint8(_decidedProps[8]),
+      prop10: uint8(_decidedProps[9]),
+      prop11: uint8(_decidedProps[10]),
+      prop12: uint8(_decidedProps[11]),
+      prop13: uint8(_decidedProps[12]),
+      prop14: uint8(_decidedProps[13])
+    });
+
+    uint256 id = items.push(_item) - 1;
   }
 }

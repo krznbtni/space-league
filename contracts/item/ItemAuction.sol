@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+/*
 import './ItemFactory.sol';
 import '../../libs/math/SafeMath.sol';
 
@@ -64,3 +65,4 @@ contract ItemAuction is ItemFactory {
   }
 
 }
+*/

@@ -8,7 +8,7 @@ import '../../libs/math/SafeMath.sol';
 contract ItemFactory is Ownable {
   using SafeMath for uint256;
 
-  address public SPACE_LEAGUE_CURRENCY_ADDRESS;
+  SpaceLeagueCurrency public SPC;
 
   uint8 public constant COMMON = 69; // 1-2 properties
   uint8 public constant UNCOMMON = 18; // 3-4 properties
@@ -20,8 +20,6 @@ contract ItemFactory is Ownable {
   uint256 nonce;
 
   event OnBuyItem(uint256 indexed blockNumber, address indexed player);
-
-  SpaceLeagueCurrency spaceLeagueCurrency = SpaceLeagueCurrency(SPACE_LEAGUE_CURRENCY_ADDRESS);
 
   // The properties can be data packed later on.
   struct Item {
@@ -43,14 +41,12 @@ contract ItemFactory is Ownable {
 
   Item[] public items;
 
-  constructor(address _spaceLeagueCurrency) public {
-    SPACE_LEAGUE_CURRENCY_ADDRESS = _spaceLeagueCurrency;
-    spaceLeagueCurrency = SpaceLeagueCurrency(SPACE_LEAGUE_CURRENCY_ADDRESS);
+  constructor(SpaceLeagueCurrency _spcAddress) public {
+    SPC = _spcAddress;
   }
 
-  function setSpaceLeagueCurrencyAddress(address _spaceLeagueCurrency) public onlyOwner {
-    SPACE_LEAGUE_CURRENCY_ADDRESS = _spaceLeagueCurrency;
-    spaceLeagueCurrency = SpaceLeagueCurrency(SPACE_LEAGUE_CURRENCY_ADDRESS);
+  function setSPC(SpaceLeagueCurrency _spcAddress) public {
+    SPC = _spcAddress;
   }
 
   function buyItem() public {
@@ -59,7 +55,7 @@ contract ItemFactory is Ownable {
 
   // HAS TO BE CALLED SEPARATELY: spaceLeagueCurrency.approve
   function _buyItem(address _player) private {
-    spaceLeagueCurrency.transferFrom(_player, address(this), EXAMPLE_MINT_PRICE);
+    SPC.transferFrom(_player, address(this), EXAMPLE_MINT_PRICE);
     emit OnBuyItem((block.number + BLOCK_OFFSET), _player);
   }
 
@@ -110,67 +106,63 @@ contract ItemFactory is Ownable {
   /// and decides which props an item will have.
   /// @param _blockNumber block number used for RNG.
   /// @param _player player address. Used for RNG.
-  /// @return stats the total amount of stat points the item has.
-  /// @return numberOfProperties the number of properties the item will have.
-  /// @return decidedProps which properties the item will have.
-  function calculate(uint256 _blockNumber, address _player) public returns (uint256 stats, uint256 numberOfProperties, uint256[] decidedProps) {
+  /// @return rolledProps which properties the item will have.
+  function calculate(uint256 _blockNumber, address _player) public returns (uint256[] rolledProps) {
     uint256 rarity = _roll(_blockNumber, _player, 0, 100);
+    uint256 stats;
+    uint256 numberOfProps;
 
     if (rarity <= LEGENDARY) {
       stats = 150;
-      numberOfProperties = _roll(_blockNumber, _player, 8, 10);
+      numberOfProps = _roll(_blockNumber, _player, 8, 10);
     }
 
     else if (rarity <= MYTHICAL) {
       stats = 80;
-      numberOfProperties = _roll(_blockNumber, _player, 7, 8);
+      numberOfProps = _roll(_blockNumber, _player, 7, 8);
     }
 
     else if (rarity <= RARE) {
       stats = 50;
-      numberOfProperties = _roll(_blockNumber, _player, 5, 6);
+      numberOfProps = _roll(_blockNumber, _player, 5, 6);
     }
 
     else if (rarity <= UNCOMMON) {
       stats = 25;
-      numberOfProperties = _roll(_blockNumber, _player, 3, 4);
+      numberOfProps = _roll(_blockNumber, _player, 3, 4);
     }
 
     else {
       stats = 10;
-      numberOfProperties = _roll(_blockNumber, _player, 1, 2);
+      numberOfProps = _roll(_blockNumber, _player, 1, 2);
     }
 
-    decidedProps = _rollMultiple(_blockNumber, _player, numberOfProperties);
-    mintItem(stats, decidedProps);
-
-    return (stats, numberOfProperties, decidedProps);
+    rolledProps = _rollMultiple(_blockNumber, _player, numberOfProps);
+    mintItem(stats, rolledProps);
   }
   
-  function mintItem(uint256 _stats, uint256[] _decidedProps) private {
-    for (uint256 i = 0; i < _decidedProps.length; i++) {
-      if (_decidedProps[i] == 1) {
-        _decidedProps[i] += _stats;
+  function mintItem(uint256 _stats, uint256[] _rolledProps) private {
+    for (uint256 i = 0; i < _rolledProps.length; i++) {
+      if (_rolledProps[i] == 1) {
+        _rolledProps[i] += _stats;
       }
-
-      i++;
     }
 
     Item memory _item = Item({
-      prop1: uint8(_decidedProps[0]),
-      prop2: uint8(_decidedProps[1]),
-      prop3: uint8(_decidedProps[2]),
-      prop4: uint8(_decidedProps[3]),
-      prop5: uint8(_decidedProps[4]),
-      prop6: uint8(_decidedProps[5]),
-      prop7: uint8(_decidedProps[6]),
-      prop8: uint8(_decidedProps[7]),
-      prop9: uint8(_decidedProps[8]),
-      prop10: uint8(_decidedProps[9]),
-      prop11: uint8(_decidedProps[10]),
-      prop12: uint8(_decidedProps[11]),
-      prop13: uint8(_decidedProps[12]),
-      prop14: uint8(_decidedProps[13])
+      prop1: uint8(_rolledProps[0]),
+      prop2: uint8(_rolledProps[1]),
+      prop3: uint8(_rolledProps[2]),
+      prop4: uint8(_rolledProps[3]),
+      prop5: uint8(_rolledProps[4]),
+      prop6: uint8(_rolledProps[5]),
+      prop7: uint8(_rolledProps[6]),
+      prop8: uint8(_rolledProps[7]),
+      prop9: uint8(_rolledProps[8]),
+      prop10: uint8(_rolledProps[9]),
+      prop11: uint8(_rolledProps[10]),
+      prop12: uint8(_rolledProps[11]),
+      prop13: uint8(_rolledProps[12]),
+      prop14: uint8(_rolledProps[13])
     });
 
     uint256 id = items.push(_item) - 1;

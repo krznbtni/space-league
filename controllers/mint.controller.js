@@ -18,7 +18,7 @@ exports.mint_create = (req, res) => {
 };
 
 // Read all.
-exports.mint_all_details = res => {
+exports.mint_all_details = (req, res) => {
   Mint.find((err, mints) => {
     if (err) {
       return next(err);
